@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A350飞行技能大赛刷（2026）</title>
+    <title>A350飞行技能大赛试题练习系统（2026版）</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
         body{background:#f8fafc;padding:15px;max-width:800px;margin:0 auto}
@@ -24,8 +24,6 @@
         .nav button{flex:1;padding:12px;background:#165DFF;color:white;border:none;border-radius:8px;cursor:pointer}
         .nav button:disabled{background:#94a3b8;cursor:not-allowed}
         .type{display:inline-block;padding:3px 6px;background:#dbeafe;color:#1e40af;font-size:12px;border-radius:4px;margin-left:8px}
-        
-        /* 新增功能样式 */
         .function-bar{display:flex;gap:10px;margin-bottom:15px;justify-content:center}
         .func-btn{padding:8px 15px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer}
         .func-btn.error-btn{background:#ef4444}
@@ -44,10 +42,10 @@
 </head>
 <body>
 
-<h2 class="title">A350飞行技能大赛（2026）</h2>
+<h2 class="title">A350飞行技能大赛试题练习系统（2026版）</h2>
 
 <div class="progress-info">
-    已完成: <span id="completedCount">0</span> / 200 题 | 错题数: <span id="errorCount">0</span>
+    已完成: <span id="completedCount">0</span> / <span id="totalCount">0</span> 题 | 错题数: <span id="errorCount">0</span>
 </div>
 
 <div class="search">
@@ -56,7 +54,6 @@
     <button class="searchBtn clearBtn" onclick="clearSearch()">清空</button>
 </div>
 
-<!-- 新增功能按钮栏 -->
 <div class="function-bar">
     <button class="func-btn error-btn" onclick="openErrorBook()">查看错题本</button>
     <button class="func-btn" onclick="toggleStudyMode()">仅做错题</button>
@@ -64,7 +61,7 @@
 </div>
 
 <div class="progress">
-    第 <span id="current">1</span> 题 / 共 <span id="total">200</span> 题
+    第 <span id="current">1</span> 题 / 共 <span id="total">0</span> 题
     <span id="type" class="type">单选题</span>
 </div>
 
@@ -78,7 +75,6 @@
     <button id="next">下一题</button>
 </div>
 
-<!-- 错题本弹窗 -->
 <div class="modal" id="errorModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeErrorBook()">关闭</button>
@@ -91,7 +87,7 @@
 </div>
 
 <script>
-// ===================== 你的200题 · 100% 原版 · 一字未改 =====================
+// 从Excel转换的完整题库 (约300题)
 const questions = [
 {"id":1,"type":"single","title":"根据标准操作程序，正常情况下起飞离地后接通自动驾驶仪的最低高度要求是？","options":["离地后即可接通","至少在离地后5秒钟，且大于地面高度100英尺","400英尺AGL","加速高度以上"],"answer":"B"},
 {"id":2,"type":"single","title":"当机组在航前准备期间，识别途径的情报区PIB中有GNSS的干扰信息时，应当在什么时机执行 FCOM 中的补充程序及技术通告？","options":["为以防万一，驾驶舱准备期间就执行","在进入已知或预期的干扰区域之前","当驾驶舱出现相关警告或效应时再执行","只需向签派或AOC报告，无需主动执行程序"],"answer":"B"},
@@ -107,7 +103,7 @@ const questions = [
 {"id":12,"type":"single","title":"当ATC要求\"提前下降\"时，以下哪种操纵方式更合理？","options":["使用V/S模式以大下降率下降","使用DES模式，引导飞机以较小垂直速度回到计划下降航径","断开自动驾驶人工下降","使用加速下降功能"],"answer":"B"},
 {"id":13,"type":"single","title":"在发动机自动起动期间，发动机系统显示页面上显示的滑油量可能暂时下降甚至显示为0，这是因为？","options":["滑油系统故障","滑油吞咽效应","指示系统误差","滑油消耗过快"],"answer":"B"},
 {"id":14,"type":"single","title":"在最后进近阶段，PM的主要职责之一是？","options":["操纵飞机","监控飞行参数和外部情况，执行标准喊话","准备着陆后程序","与客舱联络"],"answer":"B"},
-{"id":15,"type":"multi","title":"飞行机组在飞行高度7600米（25000英尺）以上的两人制机组，当一名驾驶员离开座位时，另一名驾驶员必须？（多选）","options":["戴上氧气面罩","系好安全带和肩带","接通自动驾驶仪","通知客舱机组进入驾驶舱"],"answer":"BD"},
+{"id":15,"type":"multi","title":"飞行机组在飞行高度7600米（25000英尺）以上的两人制机组，当一名驾驶员离开座位时，另一名驾驶员必须？","options":["戴上氧气面罩","系好安全带和肩带","接通自动驾驶仪","通知客舱机组进入驾驶舱"],"answer":"BD"},
 {"id":16,"type":"single","title":"在飞行关键阶段，禁止驾驶舱内进行与安全运行无关的交谈，这被称为？","options":["保密原则","静默驾驶舱原则","独立操作原则","资源管理原则"],"answer":"B"},
 {"id":17,"type":"single","title":"关于检查单的使用，以下正确的是？","options":["边念边做，可以用来提示操作步骤","必须在相关程序性步骤完成后使用，用于核实","可由单人独立完成","仅在起飞和着陆时使用"],"answer":"B"},
 {"id":18,"type":"single","title":"通信频率的设置和更改应由谁完成？","options":["PF独立完成","PM完成，PF确认","谁方便谁完成","根据ACARS信息自动设置"],"answer":"B"},
@@ -295,54 +291,145 @@ const questions = [
 {"id":200,"type":"single","title":"正常法则下，两个侧杆同时被移动，在飞行操纵面上的偏转是：","options":["两个侧杆输入的代数和","一个侧杆输入的两倍","先移动的侧杆的输入"],"answer":"A"}
 ];
 
-// ===================== 新增功能核心代码 =====================
-let cur = 0;
-const total = questions.length;
-let errorQuestions = []; // 错题列表
-let completedQuestions = new Set(); // 已完成题目
-let studyErrorOnly = false; // 是否仅做错题模式
-let errorQuestionIds = []; // 错题ID列表
+// 补充后续新增题目（从Excel提取的201~300+）
+const extraQuestions = [
+{"id":201,"type":"single","title":"（）负责飞行机组成员职业作风养成工作","options":["大队","公司","飞行部","飞管部"],"answer":"C"},
+{"id":202,"type":"single","title":"机组成员的职业作风胜任力划分为“职业操守”（Ethics）、（）和“价值实现”（Values）三个层次进行描述","options":["“专业”(Profession)","“知识”（Knowledge)","“责任”(Responsibilitye)","“职业素养”（Qualities）"],"answer":"D"},
+{"id":203,"type":"multi","title":"飞行机组职业作风养成中的岗位胜任力包含：","options":["作风胜任礼力","核心胜任力","心理胜任力","目标胜任力"],"answer":"ABC"},
+{"id":204,"type":"multi","title":"作风胜任力指标中阶段包含：","options":["航前阶段行为监控项（飞行前准备、飞机设备检查、酒精/药品和健康管理）","运行阶段（地面运行、空中运行、航后/驻站及短停、驻外/过夜、特殊情况应对）","训练阶段（模拟机训练、理论培训、本场训练）","日常工作阶段（日常行为作风）"],"answer":"ABCD"},
+{"id":205,"type":"multi","title":"机组成员的岗位职责有：","options":["机组成员应强化“三个敬畏”意识，做到牢记岗位职责，认真履行岗位责任，严格遵守职业操守行为规范和机组标准操作程序，展现良好的机组成员职业作风，维护民航队伍的良好社会形象。","机组成员应认真遵守公司机组成员职业作风养成制度，严格自律，对标先进典型，主动弘扬优良机组成员职业作风，对照本岗位机组成员职业作风问题清单主动查找不足和自我整改。","机组成员应按照规定程序和标准培养正确的机组成员职业作风意识和良好的行为习惯，主动识别和报告职业作风问题，主动落实安全风险分级管控和隐患排查治理双重预防机制。","主动反馈对公司职业作风养成制度的意见和建议，促进公司对作风建设制度的持续完善和优化。"],"answer":"ABCD"},
+{"id":206,"type":"single","title":"在进入GPS干扰区域之前，为了保持大多数ATC数据链应用程序和FMS预测值，飞行员应该将时钟设置在？","options":["INT位","GPS位","SET位"],"answer":"A"},
+{"id":207,"type":"single","title":"在驾驶舱初始准备阶段，如果在地面观察到或者预计有错误的GPS数据，机组应？","options":["拒选GPS再进行惯导校准（使用人工位置起始功能）","无需拒选GPS，直接进行惯导校准（使用人工位置起始功能）","拒选GPS再根据补充程序进行惯导校准"],"answer":"C"},
+{"id":208,"type":"multi","title":"根据补充程序及技术通告，如果预计有不适宜的预测型TAWS告警信息，机组应考虑关断GPWS TERR按钮电门，以下说法正确的是？","options":["在巡航中且大于MSA时，飞机机组可以根据补充程序设定关断GPWS TERR按钮电门","若在高于MSA时已经按照FCOM补充程序设置了GPWS TERR关断，则必须在下降低于MSA之前完成地形意识简令","对于飞机低于MSA时需要关闭预测型GPWS功能的情况，飞行机组必须针对相应的飞行阶段完成地形意识简令后，方可按照GPS干扰的补充程序设置GPWS TERR关断"],"answer":"ABC"},
+{"id":209,"type":"single","title":"在飞机低于MSA的情况下，若机组需要关闭预测型GPWS功能，应满足的条件是","options":["地形意识简令的有效执行","有GPS受干扰的现象","A和B","A或B"],"answer":"C"},
+{"id":210,"type":"multi","title":"在离开了GPS干扰区域后，确认了GPS数据可靠，如果机组在进入或者是干扰现象出现后执行了补充程序及技术通告，机组应当完成以下哪些程序？","options":["应根据补充程序，执行退出干扰区域程序","为避免虚假警告，应保持关闭","完成《飞机飞行记录本》的填写"],"answer":"AC"},
+{"id":211,"type":"single","title":"技术通告将GNSS干扰分为两种主要类型，它们分别是","options":["失效（Failure）和降级（Degradation）","干扰（Jamming）和欺骗（Spoofing）","持续干扰和间歇干扰"],"answer":"B"},
+{"id":212,"type":"single","title":"根据《事件信息填报和处理规范》，在填报事件信息时，如果涉及多个事件类型，应如何确定主要事件类型？","options":["根据事件链中事件的等级确定","根据事件的原因确定","一律根据事件发生时间顺序确定","最后一个事件为主要事件类型"],"answer":"A"},
+{"id":213,"type":"single","title":"根据《驾驶舱物品的使用和摆放》，驾驶舱内液体保护要求中，以下哪种做法是正确的？","options":["可以使用易碎的玻璃水杯，但需要盖紧","在飞行运行阶段可以饮用易拉罐包装的苏打饮料","传递装有液体的水杯前必须盖紧，并绕开电子设备","非机组成员在执行清洁工作时可以携带液体饮料进入驾驶舱"],"answer":"C"},
+{"id":214,"type":"single","title":"根据《驾驶舱物品的使用和摆放》，以下哪项是飞行机组在执勤时允许的？","options":["在中央操作台上放置个人物品","佩戴可能刮碰驾驶舱设备的配饰物","在驾驶舱内使用加湿器","穿袖口收紧的外套"],"answer":"D"},
+{"id":215,"type":"single","title":"境外停机坪检查通常不包含以下哪项内容？","options":["对承运人遵守国际标准的情况进行评估","对公约及其附件规定的证件的符合情况","对公约及其附件规定的设备的符合情况","承运人财务状况和股价信息"],"answer":"D"},
+{"id":216,"type":"single","title":"根据《机组标准操作程序》，飞行机组简令的目的是什么？","options":["进行机组分工","识别威胁和制定缓解措施","记录飞行过程","进行人员培训"],"answer":"B"},
+{"id":217,"type":"single","title":"根据《低空风切变告警处置》的规定，风切变告警的处置原则是什么？","options":["识别-避让-改出","仅在严重情况下采取行动","根据目视判断及个人经验，可以忽略并继续飞行","无明确处置原则"],"answer":"A"},
+{"id":218,"type":"single","title":"根据《低空风切变告警处置》，风切变的分布具有哪些特征？","options":["随机性、不可预测性","季节性、地域性、阶段性","仅与地形条件有关","仅在最后进近阶段发生"],"answer":"B"},
+{"id":219,"type":"single","title":"根据《航班运行与本场训练》，在进近阶段，如果出现接近偏离稳定进行标准的偏差，且进行二次提醒后，PF仍未能开始修正，以下哪项是正确的做法？","options":["继续让PF尝试修正偏差","立即执行复飞","机长或教员应考虑接管操纵","报告地面后，忽略偏差继续进近"],"answer":"C"},
+{"id":220,"type":"single","title":"根据《航班运行与本场训练》，航班运行中的搭配原则，以下哪项是正确的？","options":["初始获取可授权副驾驶操纵飞机起落资质的机长，可以与其搭组任何等级的副驾驶","对于初始建立航班运行经历的副驾驶，应直接参与全部飞行阶段","在高高原机场同时又是特殊机场的运行，应由具备该机型机长资质的人员操纵飞机起飞和着陆","副驾驶可以在任何机场进行首次运行"],"answer":"C"},
+{"id":221,"type":"single","title":"根据《航班运行与本场训练》中对接管飞机操纵的建议，在起飞抬轮过程中，如果抬轮速率大，机长或教员（   ）；如果抬轮速率小，机长或教员（    ）。","options":["无需提醒，立即接管；在提醒无效后，实施接管","无需提醒，立即接管；无需提醒，立即接管","立即接管；无需接管","无需接管；无需接管"],"answer":"A"},
+{"id":222,"type":"single","title":"根据《目视进近实施方法》，在实施目视进近时，航空器驾驶员应保持对地面的目视能见，并至少在跑道入口多少英尺以上保持稳定进近？","options":["100英尺","500英尺","1000英尺","1500英尺"],"answer":"B"},
+{"id":223,"type":"single","title":"根据《目视进近实施方法》，航空器驾驶员在实施目视进近时，应如何使用自动驾驶设备？","options":["不允许使用自动驾驶设备","始终开启自动驾驶设备","根据机型限制合理使用自动驾驶设备","尽可能使用自动驾驶设备"],"answer":"C"},
+{"id":224,"type":"single","title":"根据《目视进近实施方法》，对于有目视进近航图的机场，如果该机场也有PBN程序，建议航空器驾驶员优先执行哪个程序？","options":["目视进近航图","PBN程序","仪表进近程序","无规定"],"answer":"B"},
+{"id":225,"type":"single","title":"根据《目视进近实施方法》，国内运行时，以下哪种情况航空器驾驶员可得到实施目视进近的许可？","options":["同时目视前机和机场或着陆跑道","目视前机","目视机场","目视机场和着陆跑道"],"answer":"A"},
+{"id":226,"type":"single","title":"根据《目视进近实施方法》，在跑道间距小于760米的平行跑道上实施目视进近时，后机的行为应该是怎样的？","options":["气象条件达到标准后可以超越前机","不得超越相邻跑道上的前机，以避免尾流影响","通知管制员后可以超越前机","可以在任何时候超越前机"],"answer":"B"},
+{"id":227,"type":"single","title":"目视进近在国内运行时，能在哪种空域中实施？","options":["雷达管制空域","非雷达管制空域","管制空域","无规定"],"answer":"A"},
+{"id":228,"type":"single","title":"根据《目视起落实施方法 》，为降低驾驶舱工作负荷，建议在（    ）完成着陆形态和着陆检查单。","options":["进入三转弯前","进入四转弯前","进入四转弯后","着陆前"],"answer":"B"},
+{"id":229,"type":"single","title":"根据《目视起落实施方法》，在五边时，必须在不低于（   ）高度建立稳定进近。","options":["200英尺","300英尺","400英尺","500英尺"],"answer":"D"},
+{"id":230,"type":"single","title":"根据《着陆运行安全通告》，着陆弹跳的改出中，轻微弹跳应如何处理？","options":["保持或重新建立正常的着陆姿态并按需增加推力","立即进行复飞","保持俯仰姿态并开始复飞","轻微弹跳完全可以忽略，继续着陆"],"answer":"A"},
+{"id":231,"type":"multi","title":"《关于复飞风险管控的技术通告》，低高度复飞期间，机组的时间压力随着高度的降低而增加，对机组执行操作程序的准确性要求较高，在较低高度的复飞动作与正常复飞动作存在差异，应重点关注复飞期间的擦机尾风险：（   ）","options":["避免低高度复时过大的抬头速率。","如果在开始复飞时发动机处于慢车，发动机可能需要几秒钟才能加速，飞行机组可能需要保持飞机俯仰，直到飞机增速到VAPP。","起落架暂时性地接触跑道是可接受的，在此过程中有可能引起飞机弹跳，如果出现弹跳，避免过大的俯仰姿态，继续执行复飞程序。"],"answer":"ABC"},
+{"id":232,"type":"multi","title":"低高度复飞的风险包括","options":["存在擦机尾和发动机风险","剐蹭障碍物","跑道外接地","着陆弹跳","突破收放构型高度限制"],"answer":"ABCD"},
+{"id":233,"type":"single","title":"什么高度以下的复飞被称为低高度复飞","options":["50英尺","100英尺","150英尺","200英尺"],"answer":"A"},
+{"id":234,"type":"single","title":"复飞SRS GA速度基准为","options":["VAPP","复飞时的速度","A＋B,以较高者为准"],"answer":"C"},
+{"id":235,"type":"single","title":"如航图无要求，默认的复飞梯度是多少","options":["0.02","0.023","0.025","0.03"],"answer":"C"},
+{"id":236,"type":"single","title":"复飞高度的正确设置是成功执行复飞动作的关键之一，当航图标注复飞高度与ATIS/ATC要求不同时，应该如何设置？","options":["应当以公布的航图复飞高度为准","应当以风险提示单上提示的指挥高度为准","应当直接按照管制员的指令执行","应当向管制员证实复飞高度，以管制员最终指令为准"],"answer":"D"},
+{"id":237,"type":"single","title":"下列关于SRS GA模式引导法则错误的说法是","options":["一个飞行航径角保护，保证一次正爬升","一个俯仰角保护，减小飞机抬头姿态，最大俯仰姿态22.5°","一个速度保护，保证飞机不会超过VFE"],"answer":"B"},
+{"id":238,"type":"single","title":"对于指定高度转弯复飞程序，按照飞行程序要求，若航图上标注了MAPT前（或某定位点前）禁止转弯，那么在该点以前：","options":["即使达到复飞转弯指定高度，也不能执行转弯。","在达到复飞转弯指定高度之后，才可以执行转弯。"],"answer":"A"},
+{"id":239,"type":"multi","title":"如果在近地面进行复飞，应该考虑以下因素","options":["避免过大的抬轮速率，防止擦机尾","可接受起落架与跑道短时接触","在弹跳的情况下，尽快收襟翼以获取更好的性能","当飞机达到并保持在正上升且不可能随后再次着陆时，下令收起落架"],"answer":"ABD"},
+{"id":240,"type":"single","title":"反向盘旋进近应如何复飞？","options":["以落地跑道复飞程序执行","以初始仪表进近跑道复飞程序为准","申请雷达引导"],"answer":"B"},
+{"id":241,"type":"single","title":"低高度复飞时，什么时机可以开始收襟翼？","options":["飞机抬头","PM应先监控飞机参数，当各项参数正常，如正上升且无线电高度增加，再按需选择收襟翼","复飞喊出时"],"answer":"B"},
+{"id":242,"type":"single","title":"飞行员必须保证在最迟（ ）时，所有油门杆在慢车卡位以保证地面扰流板在接地时伸出？","options":["接地","主起落架压缩","前轮放下","接地后3s"],"answer":"A"},
+{"id":243,"type":"multi","title":"造成重着陆常见的操作技术原因有？","options":["退出过晚，下降率过大，修正不及时，推推拉拉","退出过早，拉飘的同时油门收太早","跳跃，二次接地","机型特点不熟悉，操作经验少"],"answer":"ABCD"},
+{"id":244,"type":"multi","title":"当外部视野受天气(云雾雨等)干扰，或夜航飞行时，为了避免在座机组成员产生相同的视觉误差（例如：均未察觉出低高度飞机下沉快），PM应执行下列哪些动作？","options":["监控PFD下降率","及时接管操作","低高度下降率大时及时喊话提醒PF","提醒PF执行复飞"],"answer":"AC"},
+{"id":245,"type":"multi","title":"出现轻微弹跳后下列做法正确的是？","options":["保持俯仰姿态并保持慢车推力完成着陆","出现较高的弹跳，保持俯仰姿态执行复飞","复飞过程中尽量避免二次接地","只有飞机安全地建立复飞，机组才向前收一档襟翼并且收轮"],"answer":"ABD"},
+{"id":246,"type":"single","title":"无论机上发生任何火情，机长都应宣布（ ）并及时将情况报告ATC或公司AOC，以求得帮助。","options":["“紧急”（Urgency）","“遇险”（Distress）","“紧急下降”或“快速下降”","“注意机组！各就各位！”"],"answer":"B"},
+{"id":247,"type":"multi","title":"扑灭锂电池火灾需哪些步骤？","options":["灭火器扑灭火焰，抑制明火","打湿毛毯、枕头等用来防止火源周围的物品被引燃和火势蔓延","冷却电池以阻止热失控","使用夹具移动相关物品"],"answer":"AC"},
+{"id":248,"type":"multi","title":"在空中，对于驾驶舱中的锂电池失火应急处置步骤，描述正确的是？","options":["如果需要，把飞机操作权交给坐在火源对面的飞行机组成员。","把杆飞行员（PF）联系客舱机组，要求开始执行客舱机组操作手册（CCOM）程序“锂电池失火之后的存放程序”。","在释放灭火瓶之前，保护飞行机组呼吸系统","如果有火焰，监控飞行员必须使用灭火瓶。如果没有任何火焰，或者火焰已被熄灭，监控飞行员（PM）必须评估是否可以从驾驶舱中移开设备","如果无法移除设备，应在驾驶舱内采取降温措施","如果可以移开设备，必须把此 设备放到客舱机组成员（此时接管了程序）提前准备的容器中","如果在执行程序的任何时候，烟雾变成最大威胁，飞行机组必须考虑执行排除烟雾/有毒气体程序。如果状况变得无法控制，那么必须考虑立即着陆。"],"answer":"ABCDEFG"},
+{"id":249,"type":"single","title":"对于货舱烟雾处置，若在地面上打开货舱门时显示烟雾警告，则（ ）。请求地面人员检查并根除烟源。在地面，由于湿度较大，可能触发警告。","options":["持续释放灭火剂","立即打开外流活门人工释压飞机","不要释放灭火剂","参照“主货舱火警指示系统”提供的警告来执行程序"],"answer":"C"},
+{"id":250,"type":"multi","title":"以下哪些行为是在机上锂电池失火应急处理过程中禁止的？","options":["封堵门缝（湿毛巾/毛毯），必要时执行“排除烟雾”程序","移动燃烧中的锂电池设备","徒手断开设备电源","使用灭火毯覆盖设备","烟雾成为最大威胁，立即着陆"],"answer":"BCD"},
+{"id":251,"type":"multi","title":"对于机上锂电池失火，若火势失控或烟雾影响操纵，立即着陆。综上所述，锂电池机上起火、冒烟等事件突发性强，应急处置时应注意以下哪几点？","options":["关键在于控制客舱秩序，疏散临近人员，做好自身保护","关键在于随时、准确向地面报告机上现场情况","关键在于客舱机组和飞行机组之间及时沟通，注重机组之间、机组内部、机组与其他人员的协同联动","关键在于准确判断情况，迅速做出响应，正确使用相关设备，合理利用资源，采取适当有效的处置措施"],"answer":"ACD"},
+{"id":252,"type":"multi","title":"以下哪些属于机上锂电池失火应急处理的要点？","options":["立即联络客舱机组启动“锂电池起火后存放程序”","驾驶舱锂电池起火时，马上移交操作，佩戴氧气面罩及防火手套，并对设备进行淋水灭火，忽略淋水对仪表设备的影响。","始终遵循“操纵-导航-通讯” 原则，确保航空器可控和安全","与客舱机组保持实时沟通，明确分工（灭火者、通讯员、支援者）","优先疏散人员、做好防护（氧气面罩/PBE/防火手套），严防烟雾侵入驾驶舱","明火扑灭后必须持续冷却电池，防止热失控复燃"],"answer":"CDEF"},
+{"id":253,"type":"single","title":"寒冷天气或结冰环境下，飞机着陆后滑入停机位期间，对襟翼/缝翼的操作要求是？","options":["立即收上","延后收上","落地后直接用电动泵收上","无需进行任何操作"],"answer":"B"},
+{"id":254,"type":"single","title":"机场实施低能见度运行（LVP）时，机组应在（  ）跑道等待位置等待（如适用）？","options":["A 型","B 型","A/B 型均可","无指定等待位置"],"answer":"B"},
+{"id":255,"type":"single","title":"飞机滑入机位时，为使机身中心精准对准进位线，应使用的转弯技术是？","options":["沿线转弯","过线转弯","任意转弯技术均可","大角度切弯转弯"],"answer":"B"},
+{"id":256,"type":"single","title":"飞行机组打开滑行灯光并开始滑行的前提是？","options":["仅获得 ATC 滑出许可","认真核对滑行指令且明确看到地面机务人员的手势信号","地面人员断开连接未撤离也可操作","完成初始推力调整后"],"answer":"B"},
+{"id":257,"type":"single","title":"得到管制员滑出许可后，应当：","options":["先开滑行灯，再给机务手势获得滑出手势信号","先获得机务滑出手势，再开滑行灯","以上都可以"],"answer":"B"},
+{"id":258,"type":"single","title":"非低能见度运行且无机场特殊要求时，机组应在哪个跑道等待位置等待？","options":["A 型","B 型","任意等待位置","跑道入口处"],"answer":"A"},
+{"id":259,"type":"single","title":"冰雪天气机坪被覆盖，机位安全线无法辨识时，机组不应采取的操作是？","options":["申请引导车","跟随电子引导系统指令","试探性滑行寻找引导线","听从人工引导员指挥"],"answer":"C"},
+{"id":260,"type":"single","title":"在停机位任何的襟翼和缝翼操作，以下哪项是首要操作要求以防止与其他绕机作业设备的意外碰撞？","options":["直接打开防撞灯操作","与地面机务人员取得联系并获得许可","机组自行确认无障碍物后操作","关闭发动机后立即操作"],"answer":"B"},
+{"id":261,"type":"single","title":"标准滑行道转弯，在按照 ICAO、FAA 及 CAAC 标准设计建造、并设有充足“增补面”的滑行道、道口（含脱离道）及交叉区域，应采用的操作技术是？","options":["沿线转弯","过线转弯","内切转弯"],"answer":"A"},
+{"id":262,"type":"single","title":"下列哪项不属于“过线转弯”的适用场景？","options":["滑入机位时精确对正引导线","标准滑行道转弯","道面宽度不足的弯道","增加安全裕度时主动规避障碍物"],"answer":"B"},
+{"id":263,"type":"single","title":"在湿滑或污染道面滑行时，建议避免使用以下哪项操作？","options":["差动刹车","使用慢车推力","控制脱离速度","刹车效能检查"],"answer":"A"},
+{"id":264,"type":"single","title":"如遇引导车与管制指令冲突、未按规定路线引导或突然脱离等情况时应怎么做？","options":["应第一时间停止滑行，通报管制员重新确认许可","遵循管制指挥指令继续滑行","遵循引导车引导继续滑行"],"answer":"A"},
+{"id":265,"type":"single","title":"基于性能导航（PBN）中，RNP导航规范与RNAV导航规范的主要区别是什么？","options":["RNP要求具备机载性能监视和告警功能","RNAV要求具备机载性能监视和告警功能","RNP不需要任何导航设备","RNAV不需要任何导航设备"],"answer":"A"},
+{"id":266,"type":"single","title":"关于DME/DME和DME/DME/IRU导航性能要求，以下哪项描述正确？","options":["DME/DME导航不需要IRU辅助即可达到RNAV2精度","DME/DME/IRU组合可提高导航精度和可靠性，满足RNAV2要求","只有IRU设备符合RNAV2的导航性能要求","DME单独使用即可满足RNAV2终端区导航要求"],"answer":"B"},
+{"id":267,"type":"single","title":"飞行员在执行RNAV 1运行时，航迹偏离允许的最大误差是多少？","options":["0.5海里","1海里","1.5海里","2海里"],"answer":"B"},
+{"id":268,"type":"single","title":"区域导航（Area navigation）主要指的是航空器在何种条件下可以沿预期航径飞行？","options":["仅依赖于陆基导航设备","仅依赖于星基导航设备","在陆基和星基导航设备的覆盖范围内","仅依赖于机载自主导航设备"],"answer":"C"},
+{"id":269,"type":"single","title":"基于性能的导航规范包括 RNAV 规范和 RNP规范,两者的区别在于 RNP 规范保护时 ( )","options":["机载性能监视和告警","导航系统误差","总系统误差<br>","目标安全水平"],"answer":"A"},
+{"id":270,"type":"single","title":"在PBN运行的一般要求中，（ ）应确认航空器及其导航系统满足航路或程序的资格要求？","options":["领航员","机务工程师","驾驶员","签派员"],"answer":"C"},
+{"id":271,"type":"single","title":"在PBN运行的一般要求中，在从导航数据库中提取并执行PBN航路和程序前，（ ）有责任确认自己有资格执行该航路和程序？","options":["签派员","驾驶员","航空运营人","机务工程师"],"answer":"B"},
+{"id":272,"type":"single","title":"在PBN运行的一般要求中，对于备降场的要求，在（ ）时，不得在目的地机场和备降机场同时计划仅使用有垂直引导的进近程序（APV）。","options":["驾驶员申请计划","驾驶舱准备","签派放行","航空运营人申请"],"answer":"C"},
+{"id":273,"type":"single","title":"关于PBN的运行要求中，需使用当前有效的导航数据库。对于任何公布的PBN航路或程序，驾驶员只能使用（ ）的航路点？","options":["签派员制作的飞行计划中含经纬度坐标的","能从航空器导航数据库中调用的","航空运营人获得申请批注"],"answer":"B"},
+{"id":274,"type":"single","title":"航图上描绘的导航信息与导航系统上的显示之间会有细微差异。由于航空电子设备的磁差应用，最多（ ）的磁方向差异是可以接受的？","options":["5°","3°","2°","1°"],"answer":"B"},
+{"id":275,"type":"single","title":"在飞行前制定飞行计划时，预计在飞行计划路线上会丢失接收机自主完好性监视（RAIM）功能超过（ ）分钟，则需要航空运营人改变飞行计划？","options":["3","5","10","15"],"answer":"B"},
+{"id":276,"type":"single","title":"在PBN运行的一般要求中，驾驶员应始终保持在PBN航路或程序的中心线上。驾驶员应将实际飞行航迹的侧向偏差限制在不超过PBN航路或程序所需导航精确度值（ ）的范围以内？","options":["±1nm","三分之一","一半"],"answer":"C"},
+{"id":277,"type":"single","title":"空中交通管制可能要求驾驶员重新加入原有的PBN航路或程序，但当驾驶员不能确定仍然具备遵守原PBN航路或程序剩余部分要求的能力时，该如何处理？","options":["严格执行管制员指令。","申请导航点加入等待，待获得许可后加入程序。","可以拒绝重新加入PBN航路或程序。"],"answer":"C"},
+{"id":278,"type":"single","title":"当航空器在距离机场基准点（ARP） 30 海里以外运行时，驾驶员应确保 RNP 系统满偏刻度显示不超过 （ ）海里。","options":["1","2","3","4"],"answer":"A"},
+{"id":279,"type":"single","title":"RNP 1 运行应以（ ）作为主用导航传感器？","options":["VOR/DME","全球卫星导航系统（GNSS）","INS或IRS","DME/DME/IRU"],"answer":"B"},
+{"id":280,"type":"single","title":"如果在 RNP 1 中使用沿固定半径转弯至定位点（RF）航段，航空运营人必须确认航空器具备飞行沿固定半径转弯至定位点（RF）航段的资格和能力，（ ）需要接受飞行沿固定半径转弯至定位点（RF）转弯的培训？","options":["签派员","航空运营人","驾驶员","机务工程师"],"answer":"C"},
+{"id":281,"type":"single","title":"在执行离场程序时，驾驶员必须能够在到达机场标高之上（ ）之前使用 RNP 1 设备来获得侧向导航的飞行引导？","options":["100米（300英尺）","175米（530英尺）","153 米（500 英尺）","200米（600英尺）"],"answer":"C"},
+{"id":282,"type":"single","title":"RNP APCH最后进近航段要求的水平导航（LNAV）精确度值为？","options":["1.0海里","0.5海里","0.3海里","0.1海里"],"answer":"C"},
+{"id":283,"type":"single","title":"使用气压垂直导航（Baro-VNAV）飞行至LNAV/VNAV最低标准时，若实际温度超出航图限制，驾驶员应？","options":["继续进近","使用温度补偿功能","转为目视飞行","禁止使用Baro-VNAV"],"answer":"D"},
+{"id":284,"type":"single","title":"复飞航段的RNP值要求为？","options":["0.3海里","1.0海里","0.5海里","2.0海里"],"answer":"B"},
+{"id":285,"type":"single","title":"对于飞行至 LNAV/VNAV 最低标准的气压垂直导航（Baro-VNAV）运行，RNP系统计算的垂直引导与公布的最后进近定位点（FAF）高度如果存在（）英尺以上的差异，则不得使用LNAV/VNAV 最低标准？","options":["75英尺","100英尺","150英尺","250英尺"],"answer":"B"},
+{"id":286,"type":"single","title":"驾驶员使用Baro-VNAV时，垂直偏差不应超过多少？","options":["±50英尺","±75英尺","±100英尺","±150英尺"],"answer":"B"},
+{"id":287,"type":"single","title":"RNP至ILS进近程序中，最后航段必须使用哪种导航规范？","options":["RNP 1","RNP APCH","RNAV 2","RNAV 1"],"answer":"B"},
+{"id":288,"type":"single","title":"如果在复飞点（MAPt 或 DA）时没有获得所需的适当目视参考，应该？","options":["可以下降到100英尺","继续落地","可以继续飞到跑道入口","复飞"],"answer":"D"},
+{"id":289,"type":"single","title":"RNP APCH规范中，起始进近、中间进近和复飞航段的水平导航（LNAV）精确度值要求为？","options":["1.0海里","0.5海里","0.3海里","0.1海里"],"answer":"A"},
+{"id":290,"type":"single","title":"本所需导航性能进近（RNP APCH）规范对沿固定半径转弯至定位点（RF）功能的要求是？","options":["强制要求","可选性功能要求","仅在最后进近航段要求","完全不涉及该功能"],"answer":"B"},
+{"id":291,"type":"single","title":"在RNP APCH导航规范中，最后进近航段必须使用？","options":["在RNP APCH导航规范中，最后进近航段必须使用","其他PBN导航规范的功能","VOR导航功能","NDB导航功能"],"answer":"A"},
+{"id":292,"type":"single","title":"当飞行所需导航性能进近（RNP APCH）至LPV最低标准时，航空运营人需要？","options":["全球卫星导航系统","星基增强（SBAS）","地基增强系统","以上都不对"],"answer":"B"},
+{"id":293,"type":"single","title":"在决断高度（DA）操作时，若未获得继续进近所需的适当目视参考，驾驶员应？","options":["继续下降进近","立刻执行复飞","保持当前高度","以上都不对"],"answer":"B"},
+{"id":294,"type":"single","title":"如果在RNP APCH中使用沿固定半径转弯至定位点（RF）航段，航空运营人必须确认哪些内容？","options":["航空器具备飞行RF航段的资格和能力，驾驶员无需培训","航空器具备飞行RF航段的资格和能力，驾驶员需要接受培训","航空器无需具备飞行RF航段的资格和能力，驾驶员也无需培训","航空器无需具备飞行RF航段的资格和能力，驾驶员需要接受培训"],"answer":"B"},
+{"id":295,"type":"single","title":"由于 RNAV 航路/程序与传统航路/程序使用不同的障碍物评估标准，在某些情况下，不保持在航路/程序的中心线上可能会导致？","options":["航空器飞出障碍物保护区","航空器进入禁区","迷航","航空器失去区域导航能力"],"answer":"A"},
+{"id":296,"type":"single","title":"RNP系统必须能够提供飞行指引，航空器在高度400英尺以上FL195以下执行RF航段时，允许的最大坡度角是多少？","options":["15°","20°","25°","30°"],"answer":"D"},
+{"id":297,"type":"single","title":"在RNP APCH进近运行和监控中，正常运行时，最后进近航段侧向航迹偏差（XTK）不应超过？","options":["0.3海里","0.5海里","1海里","0.15海里"],"answer":"D"},
+{"id":298,"type":"single","title":"温度对真实高度与指示高度的影响:如果温度比ISA温度高，真实高度将( )指示高度;如果温度比ISA温度低，真实高度将( )指示高度。","options":["高于；低于","低于；高于","高于；高于","低于；低于"],"answer":"A"},
+{"id":299,"type":"single","title":"由于航空器的实际高度高于指示的气压高度，在高温下运行的航空器，特别是在海拔较高的机场，可能会遭遇比正常情况更陡的最后进近航径角。这些更陡角度会（ ），从而可能会导致最后进近航段的不稳定。","options":["没有保持足够的超障余度","实际下滑航径角可能会比公布的角度更低","产生过大下降率","必须使用温度修正"],"answer":"C"},
+{"id":300,"type":"single","title":"气压垂直导航系统提供的垂直航径信息，可用于在 PBN 进近中定义垂直角或定位点高度。下滑角度由 RNP 系统的（ ）指定。","options":["导航数据库","实际下降率","驾驶员","制造商"],"answer":"A"}
+];
 
-// 从localStorage加载数据
+// 合并所有题目
+const allQuestions = questions.concat(extraQuestions);
+// 按id重新排序确保连续性
+allQuestions.sort((a,b)=>a.id-b.id);
+const totalQ = allQuestions.length;
+
+let cur = 0;
+let errorQuestions = [];
+let completedQuestions = new Set();
+let studyErrorOnly = false;
+let errorQuestionIds = [];
+
 function loadData() {
-    // 加载当前进度
-    const savedCur = localStorage.getItem('a350_question_cur');
-    if (savedCur !== null) {
-        cur = parseInt(savedCur);
-    }
-    
-    // 加载已完成题目
-    const savedCompleted = localStorage.getItem('a350_completed_questions');
-    if (savedCompleted) {
-        completedQuestions = new Set(JSON.parse(savedCompleted));
-    }
-    
-    // 加载错题
-    const savedErrors = localStorage.getItem('a350_error_questions');
+    const savedCur = localStorage.getItem('a350_question_cur_2026');
+    if (savedCur !== null) cur = parseInt(savedCur);
+    const savedCompleted = localStorage.getItem('a350_completed_questions_2026');
+    if (savedCompleted) completedQuestions = new Set(JSON.parse(savedCompleted));
+    const savedErrors = localStorage.getItem('a350_error_questions_2026');
     if (savedErrors) {
         errorQuestions = JSON.parse(savedErrors);
         errorQuestionIds = errorQuestions.map(q => q.id);
     }
-    
     updateProgressInfo();
+    document.getElementById('totalCount').innerText = totalQ;
 }
-
-// 保存当前进度到localStorage
 function saveProgress() {
-    localStorage.setItem('a350_question_cur', cur);
-    localStorage.setItem('a350_completed_questions', JSON.stringify([...completedQuestions]));
-    localStorage.setItem('a350_error_questions', JSON.stringify(errorQuestions));
+    localStorage.setItem('a350_question_cur_2026', cur);
+    localStorage.setItem('a350_completed_questions_2026', JSON.stringify([...completedQuestions]));
+    localStorage.setItem('a350_error_questions_2026', JSON.stringify(errorQuestions));
 }
-
-// 更新进度信息显示
 function updateProgressInfo() {
     document.getElementById('completedCount').innerText = completedQuestions.size;
     document.getElementById('errorCount').innerText = errorQuestions.length;
 }
-
-// 添加错题
 function addToErrorBook(question) {
-    // 避免重复添加
     if (!errorQuestionIds.includes(question.id)) {
         errorQuestions.push(question);
         errorQuestionIds.push(question.id);
@@ -350,23 +437,17 @@ function addToErrorBook(question) {
         updateProgressInfo();
     }
 }
-
-// 移除错题
 function removeFromErrorBook(questionId) {
     errorQuestions = errorQuestions.filter(q => q.id !== questionId);
     errorQuestionIds = errorQuestions.map(q => q.id);
     saveProgress();
     updateProgressInfo();
 }
-
-// 打开错题本
 function openErrorBook() {
     const modal = document.getElementById('errorModal');
     const errorList = document.getElementById('errorList');
     const emptyTip = document.getElementById('emptyErrorTip');
-    
     errorList.innerHTML = '';
-    
     if (errorQuestions.length === 0) {
         emptyTip.style.display = 'block';
     } else {
@@ -374,12 +455,10 @@ function openErrorBook() {
         errorQuestions.forEach((q, index) => {
             const errorItem = document.createElement('div');
             errorItem.className = 'error-item';
-            
-            // 构建正确答案显示文本
             let answerText = '';
             if (q.type === 'single') {
-                const answerIndex = ['A','B','C','D'].indexOf(q.answer);
-                answerText = `正确答案：${q.answer} - ${q.options[answerIndex]}`;
+                const idx = ['A','B','C','D'].indexOf(q.answer);
+                answerText = `正确答案：${q.answer} - ${q.options[idx] || ''}`;
             } else {
                 answerText = '正确答案：';
                 q.answer.split('').forEach(ans => {
@@ -388,7 +467,6 @@ function openErrorBook() {
                 });
                 answerText = answerText.slice(0, -1);
             }
-            
             errorItem.innerHTML = `
                 <div class="error-item-title">
                     第${q.id}题：${q.title}
@@ -401,158 +479,115 @@ function openErrorBook() {
                 </div>
                 <div class="error-item-answer" id="errorAnswer_${index}" style="display:none">${answerText}</div>
             `;
-            
             errorList.appendChild(errorItem);
         });
     }
-    
     modal.style.display = 'flex';
 }
-
-// 关闭错题本
-function closeErrorBook() {
-    document.getElementById('errorModal').style.display = 'none';
-}
-
-// 显示错题答案
+function closeErrorBook() { document.getElementById('errorModal').style.display = 'none'; }
 function showErrorAnswer(index) {
     const answerEl = document.getElementById(`errorAnswer_${index}`);
-    answerEl.style.display = answerEl.style.display === 'none' ? 'block' : 'none';
+    if(answerEl) answerEl.style.display = answerEl.style.display === 'none' ? 'block' : 'none';
 }
-
-// 移除错题
 function removeErrorQuestion(questionId) {
     if (confirm('确定要移除这道错题吗？')) {
         removeFromErrorBook(questionId);
-        openErrorBook(); // 重新刷新错题本
+        openErrorBook();
     }
 }
-
-// 跳转到指定错题
 function gotoErrorQuestion(questionId) {
     closeErrorBook();
-    cur = questions.findIndex(q => q.id === questionId);
+    cur = allQuestions.findIndex(q => q.id === questionId);
     render();
 }
-
-// 切换仅做错题模式
 function toggleStudyMode() {
     studyErrorOnly = !studyErrorOnly;
     const btn = document.querySelector('.func-btn:not(.error-btn):not(.reset-btn)');
     btn.textContent = studyErrorOnly ? '显示全部题目' : '仅做错题';
-    
-    // 如果切换到仅做错题模式，跳转到第一个错题
     if (studyErrorOnly && errorQuestions.length > 0) {
-        cur = questions.findIndex(q => q.id === errorQuestions[0].id);
+        cur = allQuestions.findIndex(q => q.id === errorQuestions[0].id);
     }
-    
     render();
     updateNavButtons();
 }
-
-// 重置所有进度
 function resetProgress() {
     if (confirm('确定要重置所有进度和错题本吗？此操作不可恢复！')) {
-        localStorage.removeItem('a350_question_cur');
-        localStorage.removeItem('a350_completed_questions');
-        localStorage.removeItem('a350_error_questions');
-        
+        localStorage.removeItem('a350_question_cur_2026');
+        localStorage.removeItem('a350_completed_questions_2026');
+        localStorage.removeItem('a350_error_questions_2026');
         cur = 0;
         completedQuestions.clear();
         errorQuestions = [];
         errorQuestionIds = [];
         studyErrorOnly = false;
-        
         const btn = document.querySelector('.func-btn:not(.error-btn):not(.reset-btn)');
         btn.textContent = '仅做错题';
-        
         updateProgressInfo();
         render();
     }
 }
-
-// 更新导航按钮状态（适配仅做错题模式）
 function updateNavButtons() {
     const prevBtn = document.getElementById('prev');
     const nextBtn = document.getElementById('next');
-    
     if (!studyErrorOnly) {
-        // 正常模式
         prevBtn.disabled = cur === 0;
-        nextBtn.disabled = cur === total - 1;
+        nextBtn.disabled = cur === totalQ - 1;
     } else {
-        // 仅做错题模式
-        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
         prevBtn.disabled = currentErrorIndex <= 0;
         nextBtn.disabled = currentErrorIndex >= errorQuestionIds.length - 1;
     }
 }
-
-// 导航到上一题（适配仅做错题模式）
 function goPrev() {
     if (!studyErrorOnly) {
         cur--;
     } else {
-        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
         if (currentErrorIndex > 0) {
-            cur = questions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex - 1]);
+            cur = allQuestions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex - 1]);
         }
     }
     render();
 }
-
-// 导航到下一题（适配仅做错题模式）
 function goNext() {
     if (!studyErrorOnly) {
         cur++;
     } else {
-        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
         if (currentErrorIndex < errorQuestionIds.length - 1) {
-            cur = questions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex + 1]);
+            cur = allQuestions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex + 1]);
         }
     }
     render();
 }
-
-// 渲染题目
-function render(){
-    // 如果仅做错题模式且当前题不是错题，跳转到第一个错题
-    if (studyErrorOnly && errorQuestions.length > 0 && !errorQuestionIds.includes(questions[cur].id)) {
-        cur = questions.findIndex(q => q.id === errorQuestions[0].id);
+function render() {
+    if (studyErrorOnly && errorQuestions.length > 0 && !errorQuestionIds.includes(allQuestions[cur].id)) {
+        cur = allQuestions.findIndex(q => q.id === errorQuestions[0].id);
     }
-    
-    const q = questions[cur];
+    const q = allQuestions[cur];
     document.getElementById("current").innerText = cur+1;
-    document.getElementById("total").innerText = studyErrorOnly ? errorQuestions.length : total;
+    document.getElementById("total").innerText = studyErrorOnly ? errorQuestions.length : totalQ;
     document.getElementById("qTitle").innerText = q.title;
     document.getElementById("type").innerText = q.type==="multi"?"多选题":"单选题";
-
     const opts = document.getElementById("opts");
     opts.innerHTML = "";
-    
-    // 标记已完成
     completedQuestions.add(q.id);
     saveProgress();
     updateProgressInfo();
-
     q.options.forEach((t,i)=>{
         const o = document.createElement("div");
         o.className = "opt";
         o.innerText = `${['A','B','C','D'][i]}: ${t}`;
-        
-        // 如果是错题，添加标记
         if (errorQuestionIds.includes(q.id)) {
             const mark = document.createElement('span');
             mark.className = 'mark-wrong';
             mark.innerText = '错题';
             o.appendChild(mark);
         }
-        
         o.onclick = ()=>{
             document.querySelectorAll(".opt").forEach(x=>x.classList.remove("correct","wrong"));
             let ans = q.answer;
             let ok = false;
-
             if(q.type==="single"){
                 let k = ["A","B","C","D"][i];
                 ok = k === ans;
@@ -560,51 +595,34 @@ function render(){
                 let k = ["A","B","C","D"][i];
                 ok = ans.includes(k);
             }
-            
             o.classList.add(ok?"correct":"wrong");
-            
-            // 答错时添加到错题本
             if (!ok) {
                 addToErrorBook(q);
             } else {
-                // 答对时从错题本移除
                 removeFromErrorBook(q.id);
             }
         };
         opts.appendChild(o);
     });
-
     updateNavButtons();
 }
-
-// 搜索功能增强（适配仅做错题模式）
 function doSearch(){
     const kw = document.getElementById("searchInput").value.toLowerCase();
-    const searchQuestions = studyErrorOnly ? errorQuestions : questions;
-    
+    const searchQuestions = studyErrorOnly ? errorQuestions : allQuestions;
     for(let i=0;i<searchQuestions.length;i++){
         if(searchQuestions[i].title.toLowerCase().includes(kw)){
-            cur = questions.findIndex(q => q.id === searchQuestions[i].id);
+            cur = allQuestions.findIndex(q => q.id === searchQuestions[i].id);
             render();
             return;
         }
     }
     alert("未找到");
 }
+function clearSearch(){ document.getElementById("searchInput").value = ""; }
 
-function clearSearch(){
-    document.getElementById("searchInput").value = "";
-}
-
-// 初始化事件绑定
 document.getElementById("prev").onclick = goPrev;
 document.getElementById("next").onclick = goNext;
-
-// 页面加载时加载数据
-window.onload = function() {
-    loadData();
-    render();
-};
+window.onload = function() { loadData(); render(); };
 </script>
 </body>
 </html>
