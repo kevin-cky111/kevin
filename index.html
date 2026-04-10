@@ -16,7 +16,7 @@
         .card{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:20px}
         .qTitle{font-size:17px;line-height:1.6;margin-bottom:15px;border-left:3px solid #165DFF;padding-left:10px}
         .options{display:flex;flex-direction:column;gap:10px}
-        .opt{padding:12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;position:relative}
+        .opt{padding:12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;position:relative;transition:all 0.2s}
         .opt:hover{background:#f1f5f9}
         .opt.correct{background:#dcfce7;border-color:#16a34a}
         .opt.wrong{background:#fee2e2;border-color:#ef4444}
@@ -38,6 +38,7 @@
         .show-answer{color:#165DFF;cursor:pointer;margin-left:10px;font-size:14px}
         .progress-info{text-align:center;margin:10px 0;color:#666}
         .mark-wrong{position:absolute;top:5px;right:5px;color:#ef4444;font-size:12px;background:#fee2e2;padding:2px 5px;border-radius:3px}
+        .answer-hint{color:#16a34a;font-size:14px;margin-left:10px;font-weight:normal}
     </style>
 </head>
 <body>
@@ -87,15 +88,15 @@
 </div>
 
 <script>
-// 从Excel转换的完整题库 (约300题)
+// 从Excel完整解析的题库 (共300题，所有选项完整)
 const questions = [
 {"id":1,"type":"single","title":"根据标准操作程序，正常情况下起飞离地后接通自动驾驶仪的最低高度要求是？","options":["离地后即可接通","至少在离地后5秒钟，且大于地面高度100英尺","400英尺AGL","加速高度以上"],"answer":"B"},
 {"id":2,"type":"single","title":"当机组在航前准备期间，识别途径的情报区PIB中有GNSS的干扰信息时，应当在什么时机执行 FCOM 中的补充程序及技术通告？","options":["为以防万一，驾驶舱准备期间就执行","在进入已知或预期的干扰区域之前","当驾驶舱出现相关警告或效应时再执行","只需向签派或AOC报告，无需主动执行程序"],"answer":"B"},
-{"id":3,"type":"single","title":"\"起动后\"检查单应在什么时机执行？","options":["双发起动完成后，且发动机参数稳定时","收到ATC滑行许可指令后","以地面人员的手势为准","完成\"起动后\"动作流程中的所有项目后"],"answer":"C"},
+{"id":3,"type":"single","title":"手册中对\"起动后\"检查单执行时机的描述是？","options":["双发起动完成后，且发动机参数稳定时","收到ATC滑行许可指令后","以地面人员的手势为准","完成\"起动后\"动作流程中的所有项目后"],"answer":"C"},
 {"id":4,"type":"single","title":"起动前检查单应在什么时机执行？","options":["旅客登机完毕后","收到推出和开车指令，并完成起动前动作流程后","发动机起动后","滑行前"],"answer":"B"},
 {"id":5,"type":"single","title":"在滑行期间，PF的主要职责是？","options":["操作无线电通讯","操纵飞机，保持对外观察","监控发动机参数","准备起飞数据"],"answer":"B"},
 {"id":6,"type":"single","title":"关于起飞简令的理解，以下说法正确的是？","options":["应当在获得放行后执行，作为对SOP的补充检查程序","起飞简令是机组对飞行离场阶段威胁识别与有效管控的重要组成","仅在复杂机场需要","由PM独立完成"],"answer":"B"},
-{"id":7,"type":"multi","title":"若自动喊话不工作，起飞时，PM喊出\"V1\"的标准是？","options":["夜间运行","污染跑道","已知或预报有风切变，伴有大阵风或接近极限侧风","机场标高超过1500米"],"answer":"BC"},
+{"id":7,"type":"multi","title":"关于减噪起飞程序，飞行机组在以下哪些情况下不应执行？","options":["夜间运行","污染跑道","已知或预报有风切变，伴有大阵风或接近极限侧风","机场标高超过1500米"],"answer":"BC"},
 {"id":8,"type":"single","title":"当标准操作程序要求在驾驶舱初始准备阶段交叉检查起飞性能数据，飞行机组必须核实的性能参数中，不包括以下哪一项？","options":["跑道标识和起飞位移","V速度（V1、VR、V2）和起飞推力","襟翼、空调组件和防冰设定","预计的飞行时间和燃油消耗"],"answer":"D"},
 {"id":9,"type":"single","title":"巡航阶段，飞行机组应至少每隔多久对发动机参数、燃油、导航等进行一次有计划的交叉检查？","options":["15分钟","30分钟","60分钟","根据需要"],"answer":"B"},
 {"id":10,"type":"multi","title":"下降准备阶段，\"进近简令\"应包含的内容有？","options":["简令卡是最好的程序检查单，参考航图，对FMS已完成的进近准备进行逐一复诵","进近方式、引导方式、最低标准，分工、复飞程序、威胁的识别与管控等","结合公司技术通告进行必要的沟通和讲解，例如低高度复飞的威胁与管控","若涉及带飞，明确公司对接管操作的要求及接管标准喊话"],"answer":"BCD"},
@@ -110,14 +111,14 @@ const questions = [
 {"id":19,"type":"single","title":"对于强颠簸中的起飞，建议的襟翼收上时机是？","options":["按正常速度收上","增速至目标速度+20节（不超过VFE-5）后再收","离地后立即收上","保持起飞构型爬升"],"answer":"B"},
 {"id":20,"type":"single","title":"使用气象雷达绕飞积雨云时，理想的上风方向水平避让距离是？","options":["5海里","10海里","20海里","30海里"],"answer":"C"},
 {"id":21,"type":"single","title":"当进入跑道等待时间预计超过多少秒时，机组应联系ATC并告知在等待指令？","options":["60秒","90秒","120秒","180秒"],"answer":"B"},
-{"id":22,"type":"single","title":"在FMS准备阶段，洋红色（Magenta）的输入字段表示什么？","options":["1000海里","500海里","1000海里0","500海里0"],"answer":"D"},
+{"id":22,"type":"single","title":"在FMS准备阶段，洋红色（Magenta）的输入字段表示什么？","options":["必须填写的输入字段","可以输入但不是必须的数据","由FMS生成且不能修改的数据","强制值（高度、速度或时间）"],"answer":"D"},
 {"id":23,"type":"single","title":"当ECAM出现警告信息时，飞行机组的首要行动原则是？","options":["尽快进入ECAM","遵循\"飞行、导航、通讯\"的优先顺序","首先联系签派","查阅QRH"],"answer":"B"},
 {"id":24,"type":"single","title":"在发动机故障中断起飞后执行ECAM程序，程序要求关闭一台发动机，关于操作\"发动机主电门\"的正确程序是？","options":["PM（监控飞行员）可以直接关断主电门，因为此时他在执行ECAM动作","PF（操纵飞行员）可以直接关断主电门，因为他是飞机操纵者","PM应指出相关的发动机主电门并请求PF确认，获得PF确认后，由PM执行关断操作","PF和PM应同时操作各自一侧的发动机主电门"],"answer":"C"},
 {"id":25,"type":"single","title":"在执行紧急撤离程序时，关于关闭发动机的操作，以下描述正确的是？","options":["副驾驶（F/O）必须指出发动机主手柄并请求机长确认后，方可将其关断","机长（Captain）应直接关断所有发动机主手柄","副驾驶（F/O）可以将发动机主手柄（master lever）设置到OFF位，无需获得机长的确认","必须等待ECAM程序触发后，再按ECAM指示关断发动机"],"answer":"C"},
 {"id":26,"type":"single","title":"在进近阶段触发反应式风切变警告时，飞行机组应执行的程序，描述正确的是？","options":["立即执行复飞","执行风切变改出记忆项目，遵循飞行指引仪指令","尽快收轮、襟翼，减小爬升阻力","立刻报告ATC"],"answer":"B"},
 {"id":27,"type":"single","title":"当出现\"单发失效\"时，FMS会自动进入什么模式？","options":["正常模式","EO（发动机不工作）模式","备份模式","直飞模式"],"answer":"B"},
 {"id":28,"type":"single","title":"在爬升，巡航，下降阶段，FMS是否有一个或者两个指定的速度方式？","options":["一个：经济模式FMS根据成本指数调整速度/马赫数","一个：远程巡航模式FMS是固定的成本指数","两种：经济模式和远程巡航模式"],"answer":"C"},
-{"id":29,"type":"single","title":"当遭遇严重颠簸时，飞行机组应如何管理自动设备？","options":["保持AP、A/THS接通","可以考虑断开，人工柔和操纵","必须断开","切换到更敏感的模式"],"answer":"B"},
+{"id":29,"type":"single","title":"当飞行过程中遭遇严重颠簸，并且无法通过改变航路，改变飞行高度避免时，则通过将速度保持在机型提供的目标速度范围内，以提供最佳保护目的。如若有自动驾驶仪被颠簸断开，应（ ），若无法接通，应（ ），控制好后继续尝试接通自动驾驶仪。","options":["尝试重新接通；断开自驾和自动油门人工控制","尝试重新接通；操作飞机柔和跟随飞行指引","保持人工控制；断开自动油门以便人工控制","切换到更敏感的模式"],"answer":"B"},
 {"id":30,"type":"single","title":"当出现\"防冰\"系统故障时，在结冰条件下飞行机组应优先？","options":["继续按计划飞行","改变高度层或航路以脱离结冰条件","减速减缓结冰","调整速度到绿点"],"answer":"B"},
 {"id":31,"type":"single","title":"关于PF和PM的角色转换，正确的说法是？","options":["只能在巡航阶段进行","必须通过明确的标准喊话进行交接和证实","由机长单方面决定","无需告知对方"],"answer":"B"},
 {"id":32,"type":"single","title":"当PM发现飞行参数出现偏差时，正确的干预策略是？","options":["立即接管操纵","首先通过标准喊话提醒PF","等待PF自行发现","记录在案"],"answer":"B"},
@@ -132,7 +133,7 @@ const questions = [
 {"id":41,"type":"single","title":"在人工着陆期间，低于多少英尺无线电高度时，\"Pitch\"音响警告可用？","options":["50英尺","100英尺","200英尺","400英尺"],"answer":"A"},
 {"id":42,"type":"single","title":"当俯仰姿态大于多少度时，会触发\"Pitch pitch\"音响警告？","options":["8.5°","10.5°","12.5°","15°"],"answer":"B"},
 {"id":43,"type":"single","title":"在正常法则中，俯仰姿态的抬头限制是多少？","options":["25°","30°，在低速时逐渐减小至25°","35°","受迎角保护限制"],"answer":"B"},
-{"id":44,"type":"single","title":"低能量警告在人工飞行时，低于多少英尺无线电高度（RA）下可用？","options":["1000英尺","2500英尺","低于2500英尺无线电高度（RA）","所有高度"],"answer":"C"},
+{"id":44,"type":"single","title":"低能量警告在人工飞行时，低于多少英尺无线电高度（RA）下可用？","options":["1000英尺","5000英尺","2500英尺","所有高度"],"answer":"C"},
 {"id":45,"type":"single","title":"在正常工作中，增压系统是全自动的，在巡航期间，客舱高度被调节到不超过多少英尺？","options":["7000英尺","8000英尺","在巡航期间，把客舱高度调节到不超过6000英尺的高度","根据着陆机场标高确定"],"answer":"C"},
 {"id":46,"type":"single","title":"当飞机高度大于25000英尺时，客舱下降率被限制为多少英尺/分钟？","options":["-200英尺/分钟","-250英尺/分钟","-300英尺/分钟","-500英尺/分钟"],"answer":"B"},
 {"id":47,"type":"single","title":"根据公司政策，当跑道表面覆盖的积水深度超过多少毫米时，禁止起飞和着陆？","options":["10毫米","13毫米（1/2英寸）","15毫米","20毫米"],"answer":"B"},
@@ -149,12 +150,12 @@ const questions = [
 {"id":58,"type":"single","title":"超压释压活门在压差低于（）或高于（）时自动打开","options":["-1PSI  9.6PSI","-0.725PSI  10.29PSI","-1PSI.  10.29PSI"],"answer":"B"},
 {"id":59,"type":"single","title":"除经空中交通管制批准外，在距机场基准点7.5千米(4海里)范围内，离地高度750米(2500英尺)AAL以下，不得以大于多少的指示空速运行飞机？","options":["340公里/小时 (185海里/小时)","370公里/小时 (200海里/小时)","400公里/小时 (215海里/小时)","460公里/小时 (250海里/小时)"],"answer":"B"},
 {"id":60,"type":"single","title":"除经空中交通管制的同意外，机长不得在修正海平面气压高度3千米(10000英尺)以上或高于机场标高3千米(10000英尺)以下(两者取较高值)，以大于多少的指示空速运行飞机？","options":["200海里/小时","250公里/小时","250海里/小时","300海里/小时"],"answer":"C"},
-{"id":61,"type":"single","title":"在起飞滑跑期间，前轮转弯一直生效到多少节？","options":["80节","100节","150节","VR速度"],"answer":"B"},
-{"id":62,"type":"single","title":"起飞过程中大于多少节时，随着地速增加并且方向舵更加有效，前轮转弯权限同时按照一个预定的速率减小？","options":["70节","100节","130节","V1速度"],"answer":"D"},
+{"id":61,"type":"single","title":"在起飞滑跑期间，前轮转弯一直生效到多少节？","options":["80节","100节","150节","VR速度"],"answer":"C"},
+{"id":62,"type":"single","title":"起飞过程中大于多少节时，随着地速增加并且方向舵更加有效，前轮转弯权限同时按照一个预定的速率减小？","options":["70节","100节","130节","V1速度"],"answer":"B"},
 {"id":63,"type":"single","title":"发动机主电门（ENG MASTER）为\"ON\"位时，以下哪个系统被供电？","options":["仅燃油活门","发动机全权数字式控制器（FADEC）","仅点火系统","反推系统"],"answer":"B"},
 {"id":64,"type":"single","title":"发动机滑油压力低警告可能表明？","options":["滑油量过多","滑油泵故障或滑油泄漏","发动机功率过高","滑油温度正常"],"answer":"B"},
 {"id":65,"type":"single","title":"发动机振动值（VIB）监控的是？","options":["发动机声音","转子的不平衡状态","飞机机身振动","滑油压力波动"],"answer":"B"},
-{"id":66,"type":"single","title":"单发失效后，绿点速度提供了？","options":["最大爬升率速度","最佳爬升梯度","最小阻力速度","最大阻力速度"],"answer":"B"},
+{"id":66,"type":"single","title":"爬升中，绿点速度提供了？","options":["最大爬升率速度","最佳爬升梯度","最小阻力速度","最大阻力速度"],"answer":"B"},
 {"id":67,"type":"single","title":"着陆阶段，发动机反推系统解锁的条件包括？","options":["仅空地电门信号","空地电门信号和油门杆在慢车卡位后拉出","仅飞行员操作反推手柄","自动刹车工作"],"answer":"B"},
 {"id":68,"type":"single","title":"当出现\"ENG 1(2) REVERSER UNLOCKED\"信息时，其放行条件是？","options":["可以保留，但反推不可用","可以保留至有维修能力的基地","不得放行","需要机长特殊批准"],"answer":"C"},
 {"id":69,"type":"single","title":"发动机引气系统的主要用途不包括？","options":["空调和增压","机翼防冰","驱动液压泵","发动机起动"],"answer":"C"},
@@ -182,7 +183,7 @@ const questions = [
 {"id":91,"type":"single","title":"跑道安全专项培训中为防止跑道侵入，滑行过程中应遵循的核心原则是什么？","options":["仅由PF负责滑行路线","跟随前机滑行即可","双人交叉证实，遇疑即停","完全听从地面管制指令，无需核实"],"answer":"C"},
 {"id":92,"type":"single","title":"当发生ELT（应急定位发射机）误发射时，机组应如何尝试复位？","options":["立即拔出ELT跳开关","通过MCDU进入维护页面进行重置","将ELT控制面板上的开关置于“TEST/RESET”位并保持约2秒","无需处置，等待系统自动复位"],"answer":"C"},
 {"id":93,"type":"single","title":"当出现空速指示不可靠故障时，处置的第一阶段（记忆项目）核心目标是什么？","options":["立即隔离故障的皮托管系统","建立安全的飞行航径","尝试修复故障的空速指示","立即宣布紧急情况并请求优先着陆"],"answer":"B"},
-{"id":94,"type":"single","title":"关于“防冲、防偏、防掉、防擦”的地面操作，其基础来自于哪个核心过程？","options":["标准操作程序（SOP）","稳定进近和扎实的落地技术","自动着陆系统的使用"," 精确的机场数据库"],"answer":"B"},
+{"id":94,"type":"single","title":"关于“防冲、防偏、防掉、防擦”的地面操作，其基础来自于哪个核心过程？","options":["良好的沟通","稳定进近和扎实的落地技术","自动着陆系统的使用","精确的机场数据库"],"answer":"B"},
 {"id":95,"type":"single","title":"对于“平飘距离长”的改进，关键点在于？","options":["增加进近速度","从仪表到目视的平顺过渡，以及正确的拉平接地技术","使用更大的反推","提前收光油门"],"answer":"B"},
 {"id":96,"type":"single","title":"实施RNP APCH进近时，飞机的垂直引导（如Baro-VNAV）精度会直接受到什么因素影响？","options":["飞机的总重","设定的气压基准和外界大气温度（OAT）","选择的进近速度","选择的进近速度"],"answer":"B"},
 {"id":97,"type":"single","title":"在PBN运行中，如果出现“NAV PRIMARY LOST”或“NAV ACCUR DOWNGRADED”信息，表明导航性能降级，此时机组应？","options":["关注所运行区域或航路的导航规范，监控导航精度，做好信息沟通","忽略该信息，因为飞机仍有基本导航能力","立即宣布紧急情况"],"answer":"A"},
@@ -190,12 +191,12 @@ const questions = [
 {"id":99,"type":"single","title":"A350机型适用FLS进近时，导航降级，哪些情况可以使用剩余的AP/FD继续进近？","options":["VOR进近，FLS降级到F-APP+RAW","LNAV/VNAV进近，FLS降级到F-APP+RAW，且目视不可见","LNAV/VNAV进近，FLS降级到RAW ONLY，且目视不可见"],"answer":"A"},
 {"id":100,"type":"single","title":"在不可靠空速处置中若出现了失速警告，机组应该怎么理解？","options":["忽略该警告，这是由于大气数据不准确导致的","必须遵守，失速警告信号来自迎角传感器探测到的迎角数据","以上描述均不对"],"answer":"B"},
 {"id":101,"type":"multi","title":"如果飞行机组在接近地面时执行复飞，以下说法正确的是：","options":["把杆飞行员应该避免过大的抬轮速率，以防止机尾擦地","起落架可以暂时碰触到跑道","只有当飞机建立在复飞中，飞行机组才可以向前收一档襟翼和收轮","如果飞机在跑道上，当PF使用了TOGA推力，可能暂时触发ECAM红色警告构型飞行机组应该忽略这些告警信息"],"answer":"ABCD"},
-{"id":102,"type":"single","title":"依据《着陆运行安全通告》（OSB-2024-02），侧风着陆的三种方法中，不推荐在颠簸和阵风条件下仅使用的方法是？（ ）","options":["偏流法"," 侧滑法","拉平过程中消除偏流","以上三种都不推荐"],"answer":"B"},
+{"id":102,"type":"single","title":"依据《着陆运行安全通告》（OSB-2024-02），侧风着陆的三种方法中，不推荐在颠簸和阵风条件下仅使用的方法是？（ ）","options":["偏流法","侧滑法","拉平过程中消除偏流","以上三种都不推荐"],"answer":"B"},
 {"id":103,"type":"single","title":"在FCOM-补充程序-【在灰、沙或尘中的飞行】中要求在发动机起动之前，执行发动机通风2分钟，以便从助推器区域清除所有的残留物，该程序该如何执行？","options":["机组按程序要求将ENG START SEL.......CRANK，并计时2分钟","此处通风程序为空客手册缺失程序链接，机组应参考手册[SUP] ENGINE VENTILATION (DRY CRANKING），并参照该程序执行"],"answer":"B"},
 {"id":104,"type":"multi","title":"结合A350机型目前可查的5起着陆阶段擦机尾事件，主要的发生原因有？","options":["复飞推力设定后，姿态控制不当","侧风着陆，大交叉角且位置不佳，复飞抬头过快","平飘长执行复飞，复飞过程中出现双操纵，俯仰操作过量","大风天气下复飞，姿态调整幅度过大，俯仰角突变"],"answer":"ABCD"},
 {"id":105,"type":"multi","title":"关于空客推荐的侧风着陆DECRAB（消偏航）技术，下列说法正确的有","options":["DECRAB技术核心是着陆前将飞机航向与跑道中心线对齐，消除偏航角","采用DECRAB技术时，飞机全程保持机翼水平，不使用侧杆抵消可能出现的坡度","推荐在拉平阶段开始执行DECRAB操作","DECRAB操作需配合恰当的舵面输入，避免着陆滑跑阶段偏航过大及可能出现的侧向载荷大"],"answer":"ACD"},
-{"id":106,"type":"multi","title":"低高度复飞的风险包括","options":["存在擦机尾和发动机风险","刮蹭障碍物","跑道外接地","着陆弹跳","突破收放构型高度限制"],"answer":"ABCDE"},
-{"id":107,"type":"multi","title":"复飞阶段容易出现的偏差有","options":["复飞姿态过大/小（带杆过量，未带杆）","坡度过大（人工操作时未有效监控坡度）","机组分工不明确，程序混乱","上升率过大（未及时收回油门","增速过快超速（未及时收回油门，未带杆","速度过小（带杆过量，ALT*时调整了目标高度导致V/S模式停留在较大上升率且未及时干预）","穿越复飞高度"],"answer":"ABCDEFG"},
+{"id":106,"type":"multi","title":"低高度复飞的风险包括","options":["存在擦机尾和发动机风险","刮蹭障碍物","跑道外接地","着陆弹跳","突破收放构型高度限制"],"answer":"ABCD"},
+{"id":107,"type":"multi","title":"复飞阶段容易出现的偏差有","options":["复飞姿态过大/小（带杆过量，未带杆）","坡度过大（人工操作时未有效监控坡度）","机组分工不明确，程序混乱","上升率过大（未及时收回油门）","增速过快超速（未及时收回油门，未带杆）","速度过小（带杆过量，ALT*时调整了目标高度导致V/S模式停留在较大上升率且未及时干预）","穿越复飞高度"],"answer":"ABCDEFG"},
 {"id":108,"type":"multi","title":"SOPG中，对应不同的高度，复飞分为几类","options":["高高度复飞","正常高度复飞","低高度复飞","临界高度复飞"],"answer":"ABC"},
 {"id":109,"type":"multi","title":"中止进近的风险包括","options":["突破放出构型最大飞行高度限制","复杂的航空器状态","突破管制指令","未触发复飞模式"],"answer":"ABCD"},
 {"id":110,"type":"multi","title":"出现轻微弹跳后下列做法正确的是？","options":["保持俯仰姿态并保持慢车推力完成着陆","出现较高的弹跳，保持俯仰姿态执行复飞","复飞过程中尽量避免二次接地","只有飞机安全地建立复飞航径，机组才向前收一档襟翼并且收轮"],"answer":"ABD"},
@@ -233,7 +234,7 @@ const questions = [
 {"id":142,"type":"single","title":"在驾驶舱，你想和在前起落架附近的地面人员联系，你将按压哪个按钮？","options":["ALL 按钮","FWD 按钮","MECH CALL","EXIT pb."],"answer":"C"},
 {"id":143,"type":"single","title":"怎样在音频控制面板上做一个旅客广播：","options":["在整个广播过程中一直保持按压PA发送键","在广播前先按压再松开PA发送键"],"answer":"A"},
 {"id":144,"type":"single","title":"驾驶舱预先准备时，CM2需要检查所有电瓶电压在多少以上","options":["21V","25V","27.5V","30V"],"answer":"B"},
-{"id":145,"type":"single","title":"地面APU运转时，APU发电机向（ ）供电","options":["所有 AC busbars of sides 1 和 2","  只有 AC 1A 和 AC 1B","只有 AC 2A 和 AC 2B","只有AC 1A 和 AC 2A"],"answer":"A"},
+{"id":145,"type":"single","title":"地面APU运转时，APU发电机向（ ）供电","options":["所有 AC busbars of sides 1 和 2","只有 AC 1A 和 AC 1B","只有 AC 2A 和 AC 2B","只有AC 1A 和 AC 2A"],"answer":"A"},
 {"id":146,"type":"single","title":"当发动机运转时，它的发电机提供230V变频电源，它的频率因发动机（ ）转速而在390Hz到800Hz变化","options":["N1","N2","N3"],"answer":"C"},
 {"id":147,"type":"single","title":"每一台发动机驱动发电机供电最大到（ ） KVA","options":["80 KVA","100 KVA","120 KVA"],"answer":"B"},
 {"id":148,"type":"single","title":"APU发电机提供230V（ ）电源","options":["从390Hz到800Hz的变频","400Hz恒频","800Hz恒频"],"answer":"B"},
@@ -251,19 +252,19 @@ const questions = [
 {"id":160,"type":"single","title":"当速度多少时，襟翼减载系统（FLRS)自动放出襟翼？","options":["Vfe-2","Vfe-2.5","Vfe-3"],"answer":"B"},
 {"id":161,"type":"single","title":"最大升降舵偏转是？","options":["20度向下和20度向上","20度向下和30度向上","10度向下和30度向上"],"answer":"B"},
 {"id":162,"type":"single","title":"设置俯仰配平的起飞重心由谁提供？","options":["FCDC","FQMS","FTIS"],"answer":"B"},
-{"id":163,"type":"single","title":"供油的逻辑是什么？","options":["机翼油箱优先供油，因为机翼油箱泵产生的压力大于中央油箱","中央油箱优先供油因为中央油箱泵产生的压力大于机翼油箱"],"answer":"B"},
+{"id":163,"type":"single","title":"A350供油的逻辑是什么？","options":["机翼油箱优先供油，因为机翼油箱泵产生的压力大于中央油箱","中央油箱优先供油,因为中央油箱泵产生的压力大于机翼油箱"],"answer":"B"},
 {"id":164,"type":"single","title":"在FUEL SD 页面，FU TOTAL 指示？","options":["发动机的已用燃油","发动机和APU的已用燃油之和"],"answer":"B"},
 {"id":165,"type":"single","title":"在FUEL SD 页面，FU ALL ENG 指示？","options":["如果APU的已用燃油不可用，则是两台发动机的总已用燃油","发动机和APU的已用燃油之和"],"answer":"A"},
 {"id":166,"type":"single","title":"燃油是怎样从机翼油箱重力传输到中心油箱的：","options":["当中央油箱油量到达阈值时自动传输","通过加油通道人工传输"],"answer":"B"},
 {"id":167,"type":"single","title":"液压系统(绿色和黄色)为下列部件产生和提供液压动力：","options":["飞行操纵面","货舱门操作","缝翼和襟翼","以上全部"],"answer":"D"},
-{"id":168,"type":"single","title":"A350有两个液压系统(绿色和黄色)正确的说法是：","options":["它们在正常运作中是独立的电动液压泵可在不正常运行时为各液压系统提供液压","它们在正常运作中是独立的电动液压泵可在不正常运行时为各液压系统提供液压"],"answer":"B"},
+{"id":168,"type":"single","title":"A350有两个液压系统(绿色和黄色)正确的说法是：","options":["它们在正常运作中是融合的,电动液压泵可在不正常运行时为各液压系统提供液压","它们是完全相同和独立的,发动机驱动泵和电动泵可以支持每个液压系统工作"],"answer":"B"},
 {"id":169,"type":"single","title":"每台发动机有两个发动机驱动的液压泵为系统供压，并且","options":["1号发动机有两个绿液压泵，2号发动机有两个黄液压泵","每台发动机都有一个绿液压泵和一个黄液压泵","1号发动机有两个黄液压泵，2号发动机有两个绿液压泵"],"answer":"B"},
 {"id":170,"type":"single","title":"A350上有多少种刹车方式","options":["正常刹车、备用刹车","正常刹车、备用刹车、紧急刹车","正常刹车、备用刹车、紧急刹车、停留刹车","正常刹车、备用刹车、紧急刹车、最终刹车、停留刹车"],"answer":"C"},
 {"id":171,"type":"single","title":"在正常刹车模式下，机轮刹车是","options":["一组轮胎成对控制的","每个轮子单独控制"],"answer":"B"},
 {"id":172,"type":"single","title":"在备用刹车下，当蓄压器压力指示在1700PSI时","options":["防滞能力降级，刹车压力只由蓄压器提供","除了压力由蓄压器提供以外，其他的功能和正常刹车一样"],"answer":"B"},
-{"id":173,"type":"single","title":"当黄液压系统失效时，你可以如何脱离跑道","options":["备用转弯功能通过将机组的转向输入转换为差动刹车","黄液压的蓄压器驱动的备用转弯功能"],"answer":"A"},
-{"id":174,"type":"single","title":"轮胎的最大地速是","options":["195","200","204","210"],"answer":"C"},
-{"id":175,"type":"single","title":"起落架的最大操作速度是","options":["220","230","240","250"],"answer":"D"},
+{"id":173,"type":"single","title":"当黄液压系统失效时，机组可以如何实现转弯？","options":["备用转弯功能通过将机组的转向输入转换为差动刹车","黄液压的蓄压器驱动的备用转弯功能"],"answer":"A"},
+{"id":174,"type":"single","title":"A350机型的最大轮胎速度为地速多少KT?","options":["195","200","204","210"],"answer":"C"},
+{"id":175,"type":"single","title":"A350起落架的最大操作速度是","options":["220kt/M0.48","230kt/M0.50","240kt/M0.52","250kt/M0.55"],"answer":"D"},
 {"id":176,"type":"single","title":"BTV的目标是在脱离道口前60米将飞机速度减到：","options":["10KT","15KT","20KT"],"answer":"A"},
 {"id":177,"type":"single","title":"在A350上，时间功能默认是工作在自动方式中在这种方式中，时间是由GNSS提供","options":["正确","错误"],"answer":"A"},
 {"id":178,"type":"single","title":"当机组执行离机关断ADIRS后，至少要等待（  )再切断电源，以确保ADIRS储存最新的数据","options":["10S","15S","20S"],"answer":"A"},
@@ -273,26 +274,22 @@ const questions = [
 {"id":182,"type":"single","title":"ENGINE上显示绿色的REV指示代表","options":["反推准备好可以使用","反推已经被选择","反推系统完全放出","反推已经完全打开，已经选择最大反推"],"answer":"C"},
 {"id":183,"type":"single","title":"当FADEC探测到反推意外开锁FADEC会自动：","options":["关掉相关的发动机","将相关的发动机限制在慢车推力","冻结在当前的推力","增加推力来保持速度"],"answer":"B"},
 {"id":184,"type":"single","title":"若要在飞行中断开A/THR，可以将推力杆设置为慢车，或：","options":["按一个或两个A/THR的本能断开按钮","同时按压两个自动油门的本能脱开按钮","移除FMA"],"answer":"A"},
-{"id":185,"type":"single","title":"最小滑油量为（ )夸脱，此值不适用于航前维护","options":["11.5","13","16.5","19"],"answer":"B"},
+{"id":185,"type":"single","title":"机组航前准备时,可接受的最小滑油量为（ )夸脱，此值不适用于航前维护","options":["11.5","13","16.5","19"],"answer":"B"},
 {"id":186,"type":"single","title":"公司运行A350-900飞机确定的机场应急救护保障等级：（   ）级","options":["6","7","8","9"],"answer":"D"},
 {"id":187,"type":"single","title":"A350的最大燃油容量约为:","options":["110t(243000lb)","70t(155000lb)","150t(330000lb)"],"answer":"A"},
 {"id":188,"type":"single","title":"在ECAM上的APU AVAIL备忘表明","options":["APU已经准备好启动","APU提供引气","APU为电气系统提供电能","APU在运行并且可以提供气源和电源"],"answer":"D"},
 {"id":189,"type":"single","title":"在发动机自动启动过程中，发动机起动活门：","options":["从不自动关闭","只在失效时自动关闭","在N3达到大概50%时自动关闭","在发动机起动开关设置到正常位时关闭"],"answer":"C"},
 {"id":190,"type":"single","title":"你不小心按压并保持了自动油门本能脱开按钮超过15秒，自动油门系统：","options":["不会断开","自动油门断开，将推力手柄放到IDLE位后可以重新接通","自动油门断开，并且余下的飞行阶段不可用","会触发A/FLOOR，推力会被设置成TOGA"],"answer":"C"},
 {"id":191,"type":"multi","title":"APU可以通过哪种方式启动","options":["3个28V的直流电瓶","2个28V的直流电瓶","1个28V的直流电瓶","230V的交流电源"],"answer":"BD"},
-{"id":192,"type":"single","title":"在ECAM上的APU AVAIL备忘表明","options":["APU已经准备好启动","APU提供引气","APU为电气系统提供电能","APU在运行并且可以提供气源和电源"],"answer":"D"},
-{"id":193,"type":"single","title":"在发动机自动启动过程中，发动机起动活门：","options":["从不自动关闭","只在失效时自动关闭","在N3达到大概50%时自动关闭","在发动机起动开关设置到正常位时关闭"],"answer":"C"},
-{"id":194,"type":"single","title":"你不小心按压并保持了自动油门本能脱开按钮超过15秒，自动油门系统：","options":["不会断开","自动油门断开，将推力手柄放到IDLE位后可以重新接通","自动油门断开，并且余下的飞行阶段不可用","会触发A/FLOOR，推力会被设置成TOGA"],"answer":"C"},
+{"id":192,"type":"single","title":"在超过（）次连续的APU启动尝试后，飞行机组应该等60min后再重新尝试启动","options":["2","3","4","5"],"answer":"B"},
+{"id":193,"type":"single","title":"飞机在零度等温线附近，最容易遭遇（ ）？因此应该避免在零度等温线附近长时间飞行。","options":["风切变","积冰及空中颠簸","下击暴流"],"answer":"B"},
+{"id":194,"type":"single","title":"在观测前10min内，如果最大风速超过平均风速（）节或者更多，在风速后加G和两位或三位数字指示最大阵风风速？","options":["20","15","10","5"],"answer":"C"},
 {"id":195,"type":"single","title":"适配下垂铰链功能ADHF是通过襟翼展开来提高机翼的性能的，这个功能的原理是：","options":["稍稍的展开副翼向下到一个新的中立位置","通过控制扰流板后缘和襟翼前缘之间的间隙"],"answer":"B"},
 {"id":196,"type":"single","title":"在CRUISE页面，着陆标高的数据来自哪里？","options":["FMS","EFB","ANF"],"answer":"A"},
 {"id":197,"type":"single","title":"当你打开冲压空气时，外部空气会流向哪里？","options":["2号热空气引气","混合空气装置","2发引气","直接流向客舱"],"answer":"B"},
 {"id":198,"type":"single","title":"SURV系统包括","options":["仅天气雷达","仅XPDR和TCAS","仅TAWS","以上全部"],"answer":"D"},
 {"id":199,"type":"single","title":"在PFD上，双菱形表示飞机垂直偏离来自","options":["ILS下滑道（G/S）","SLS下滑道（G/S）","GLS下滑道（G/S）","FLS虚拟的下滑道（G/S）"],"answer":"D"},
-{"id":200,"type":"single","title":"正常法则下，两个侧杆同时被移动，在飞行操纵面上的偏转是：","options":["两个侧杆输入的代数和","一个侧杆输入的两倍","先移动的侧杆的输入"],"answer":"A"}
-];
-
-// 补充后续新增题目（从Excel提取的201~300+）
-const extraQuestions = [
+{"id":200,"type":"single","title":"正常法则下，两个侧杆同时被移动，在飞行操纵面上的偏转是：","options":["两个侧杆输入的代数和","一个侧杆输入的两倍","先移动的侧杆的输入"],"answer":"A"},
 {"id":201,"type":"single","title":"（）负责飞行机组成员职业作风养成工作","options":["大队","公司","飞行部","飞管部"],"answer":"C"},
 {"id":202,"type":"single","title":"机组成员的职业作风胜任力划分为“职业操守”（Ethics）、（）和“价值实现”（Values）三个层次进行描述","options":["“专业”(Profession)","“知识”（Knowledge)","“责任”(Responsibilitye)","“职业素养”（Qualities）"],"answer":"D"},
 {"id":203,"type":"multi","title":"飞行机组职业作风养成中的岗位胜任力包含：","options":["作风胜任礼力","核心胜任力","心理胜任力","目标胜任力"],"answer":"ABC"},
@@ -395,12 +392,7 @@ const extraQuestions = [
 {"id":300,"type":"single","title":"气压垂直导航系统提供的垂直航径信息，可用于在 PBN 进近中定义垂直角或定位点高度。下滑角度由 RNP 系统的（ ）指定。","options":["导航数据库","实际下降率","驾驶员","制造商"],"answer":"A"}
 ];
 
-// 合并所有题目
-const allQuestions = questions.concat(extraQuestions);
-// 按id重新排序确保连续性
-allQuestions.sort((a,b)=>a.id-b.id);
-const totalQ = allQuestions.length;
-
+const totalQ = questions.length;
 let cur = 0;
 let errorQuestions = [];
 let completedQuestions = new Set();
@@ -462,8 +454,12 @@ function openErrorBook() {
             } else {
                 answerText = '正确答案：';
                 q.answer.split('').forEach(ans => {
-                    const ansIndex = ['A','B','C','D'].indexOf(ans);
-                    answerText += `${ans} - ${q.options[ansIndex]}、`;
+                    const ansIndex = ['A','B','C','D','E','F','G','H','I','J','K'].indexOf(ans);
+                    if (ansIndex >= 0 && q.options[ansIndex]) {
+                        answerText += `${ans} - ${q.options[ansIndex]}、`;
+                    } else {
+                        answerText += `${ans}、`;
+                    }
                 });
                 answerText = answerText.slice(0, -1);
             }
@@ -475,7 +471,7 @@ function openErrorBook() {
                     <span class="show-answer" style="color:#10b981" onclick="gotoErrorQuestion(${q.id})">前往做题</span>
                 </div>
                 <div class="error-item-options">
-                    ${q.options.map((opt, i) => `<div>${['A','B','C','D'][i]}: ${opt}</div>`).join('')}
+                    ${q.options.map((opt, i) => `<div>${String.fromCharCode(65+i)}: ${opt}</div>`).join('')}
                 </div>
                 <div class="error-item-answer" id="errorAnswer_${index}" style="display:none">${answerText}</div>
             `;
@@ -497,7 +493,7 @@ function removeErrorQuestion(questionId) {
 }
 function gotoErrorQuestion(questionId) {
     closeErrorBook();
-    cur = allQuestions.findIndex(q => q.id === questionId);
+    cur = questions.findIndex(q => q.id === questionId);
     render();
 }
 function toggleStudyMode() {
@@ -505,7 +501,7 @@ function toggleStudyMode() {
     const btn = document.querySelector('.func-btn:not(.error-btn):not(.reset-btn)');
     btn.textContent = studyErrorOnly ? '显示全部题目' : '仅做错题';
     if (studyErrorOnly && errorQuestions.length > 0) {
-        cur = allQuestions.findIndex(q => q.id === errorQuestions[0].id);
+        cur = questions.findIndex(q => q.id === errorQuestions[0].id);
     }
     render();
     updateNavButtons();
@@ -533,7 +529,7 @@ function updateNavButtons() {
         prevBtn.disabled = cur === 0;
         nextBtn.disabled = cur === totalQ - 1;
     } else {
-        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
         prevBtn.disabled = currentErrorIndex <= 0;
         nextBtn.disabled = currentErrorIndex >= errorQuestionIds.length - 1;
     }
@@ -542,9 +538,9 @@ function goPrev() {
     if (!studyErrorOnly) {
         cur--;
     } else {
-        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
         if (currentErrorIndex > 0) {
-            cur = allQuestions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex - 1]);
+            cur = questions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex - 1]);
         }
     }
     render();
@@ -553,65 +549,81 @@ function goNext() {
     if (!studyErrorOnly) {
         cur++;
     } else {
-        const currentErrorIndex = errorQuestionIds.indexOf(allQuestions[cur].id);
+        const currentErrorIndex = errorQuestionIds.indexOf(questions[cur].id);
         if (currentErrorIndex < errorQuestionIds.length - 1) {
-            cur = allQuestions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex + 1]);
+            cur = questions.findIndex(q => q.id === errorQuestionIds[currentErrorIndex + 1]);
         }
     }
     render();
 }
 function render() {
-    if (studyErrorOnly && errorQuestions.length > 0 && !errorQuestionIds.includes(allQuestions[cur].id)) {
-        cur = allQuestions.findIndex(q => q.id === errorQuestions[0].id);
+    if (studyErrorOnly && errorQuestions.length > 0 && !errorQuestionIds.includes(questions[cur].id)) {
+        cur = questions.findIndex(q => q.id === errorQuestions[0].id);
     }
-    const q = allQuestions[cur];
+    const q = questions[cur];
     document.getElementById("current").innerText = cur+1;
     document.getElementById("total").innerText = studyErrorOnly ? errorQuestions.length : totalQ;
-    document.getElementById("qTitle").innerText = q.title;
+    
+    let titleHtml = q.title;
+    if (q.type === "multi") {
+        let answerLetters = q.answer.split('').join('、');
+        titleHtml += `<span class="answer-hint">（正确答案：${answerLetters}）</span>`;
+    }
+    document.getElementById("qTitle").innerHTML = titleHtml;
     document.getElementById("type").innerText = q.type==="multi"?"多选题":"单选题";
-    const opts = document.getElementById("opts");
-    opts.innerHTML = "";
+    
+    const optsDiv = document.getElementById("opts");
+    optsDiv.innerHTML = "";
+    
     completedQuestions.add(q.id);
     saveProgress();
     updateProgressInfo();
-    q.options.forEach((t,i)=>{
-        const o = document.createElement("div");
-        o.className = "opt";
-        o.innerText = `${['A','B','C','D'][i]}: ${t}`;
+
+    q.options.forEach((t, i) => {
+        const optDiv = document.createElement("div");
+        optDiv.className = "opt";
+        const letter = String.fromCharCode(65+i);
+        optDiv.innerText = `${letter}: ${t}`;
+        
         if (errorQuestionIds.includes(q.id)) {
             const mark = document.createElement('span');
             mark.className = 'mark-wrong';
             mark.innerText = '错题';
-            o.appendChild(mark);
+            optDiv.appendChild(mark);
         }
-        o.onclick = ()=>{
-            document.querySelectorAll(".opt").forEach(x=>x.classList.remove("correct","wrong"));
-            let ans = q.answer;
-            let ok = false;
-            if(q.type==="single"){
-                let k = ["A","B","C","D"][i];
-                ok = k === ans;
-            }else{
-                let k = ["A","B","C","D"][i];
-                ok = ans.includes(k);
-            }
-            o.classList.add(ok?"correct":"wrong");
-            if (!ok) {
-                addToErrorBook(q);
+        
+        optDiv.onclick = () => {
+            if (q.type === "single") {
+                document.querySelectorAll(".opt").forEach(x => x.classList.remove("correct","wrong"));
+                const isCorrect = (letter === q.answer);
+                optDiv.classList.add(isCorrect ? "correct" : "wrong");
+                if (isCorrect) {
+                    removeFromErrorBook(q.id);
+                } else {
+                    addToErrorBook(q);
+                }
             } else {
-                removeFromErrorBook(q.id);
+                const isCorrect = q.answer.includes(letter);
+                document.querySelectorAll(".opt").forEach(x => x.classList.remove("correct","wrong"));
+                optDiv.classList.add(isCorrect ? "correct" : "wrong");
+                if (isCorrect) {
+                    removeFromErrorBook(q.id);
+                } else {
+                    addToErrorBook(q);
+                }
             }
         };
-        opts.appendChild(o);
+        optsDiv.appendChild(optDiv);
     });
+    
     updateNavButtons();
 }
 function doSearch(){
     const kw = document.getElementById("searchInput").value.toLowerCase();
-    const searchQuestions = studyErrorOnly ? errorQuestions : allQuestions;
+    const searchQuestions = studyErrorOnly ? errorQuestions : questions;
     for(let i=0;i<searchQuestions.length;i++){
         if(searchQuestions[i].title.toLowerCase().includes(kw)){
-            cur = allQuestions.findIndex(q => q.id === searchQuestions[i].id);
+            cur = questions.findIndex(q => q.id === searchQuestions[i].id);
             render();
             return;
         }
