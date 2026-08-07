@@ -40,7 +40,6 @@
         .show-answer{color:#165DFF;cursor:pointer;margin-left:10px;font-size:14px}
         .progress-info{text-align:center;margin:10px 0;color:#666}
         .mark-wrong{position:absolute;top:5px;right:5px;color:#ef4444;font-size:12px;background:#fee2e2;padding:2px 5px;border-radius:3px}
-        .answer-hint{color:#16a34a;font-size:14px;margin-left:10px;font-weight:normal}
         .feedback{text-align:center;margin-top:15px;padding:10px;border-radius:6px;display:none}
         .feedback.show{display:block}
         .feedback.correct{background:#dcfce7;color:#166534}
@@ -52,7 +51,7 @@
 <h2 class="title">A350 SOP专项复习</h2>
 
 <div class="progress-info">
-    已完成: <span id="completedCount">0</span> / <span id="totalCount">0</span> 题 | 错题数: <span id="errorCount">0</span>
+    已完成: <span id="completedCount">0</span> / <span id="totalCount">100</span> 题 | 错题数: <span id="errorCount">0</span>
 </div>
 
 <div class="search">
@@ -70,7 +69,7 @@
 </div>
 
 <div class="progress">
-    第 <span id="current">1</span> 题 / 共 <span id="total">0</span> 题
+    第 <span id="current">1</span> 题 / 共 <span id="total">100</span> 题
     <span id="type" class="type">单选题</span>
 </div>
 
@@ -97,23 +96,23 @@
 </div>
 
 <script>
-// ===================== 原始题库（A350 SOP专项）=====================
+// ===================== 最新题库（20260807，共100题）=====================
 const rawQuestions = [
-    {"title":"当机组选择的高度高于当前高度，机组选择了下降率后，FMA第二栏是否会显示蓝色的 ALT 预位模式的。","options":["会","不会"],"answer":"B"},
+    {"title":"当机组选择的高度高于当前高度，机组选择了下降率后，FMA第二栏会显示蓝色的 ALT 预位模式的。","options":["正确","错误"],"answer":"B"},
     {"title":"所有FMA的变化都由PM喊出，PF检查后喊\"检查\"。","options":["正确","错误"],"answer":"B"},
-    {"title":"RVSM空域内，是否允许\"AP关，FD关，AT关\"的人工飞行？","options":["允许","不允许"],"answer":"B"},
+    {"title":"RVSM空域内，如需要，机组可实施\"AP关，FD关，AT关\"的人工飞行？","options":["正确","错误"],"answer":"B"},
     {"title":"飞行关键阶段包括滑行、起飞、着陆和除巡航外机场标高以上10000英尺以下的飞行阶段。","options":["正确","错误"],"answer":"A"},
     {"title":"为确保正确的情景意识，飞行机组对FMA必须始终做到：监控FMA、宣布FMA、证实FMA、理解FMA。","options":["正确","错误"],"answer":"A"},
     {"title":"是否实施人工飞行可以由PF单方面决定，无需与另一名飞行员达成一致。","options":["正确","错误"],"answer":"B"},
     {"title":"FMA上所有生效的模式在喊话时都必须报出相关颜色，如\"NAV绿色\"。","options":["正确","错误"],"answer":"B"},
     {"title":"PF报出FMA变化后，PM应检查PF报出的所有FMA变化并喊出\"检查\"。","options":["正确","错误"],"answer":"A"},
-    {"title":"在非正常情况和紧急情况下，当飞机停稳以后的任意时刻，若驾驶舱同时收EMER CALL、紧急密码进入铃声以及拍打驾驶舱门的信号时，代表客舱出现了明显危及机上人员生命安全的情况，如果此时飞行机组还不能给出进一步的明确指令，客舱机组是否能自主组织实施应急撤离？","options":["能","不能"],"answer":"A"},
+    {"title":"在非正常情况和紧急情况下，当飞机停稳以后的任意时刻，若驾驶舱同时收EMER CALL、紧急密码进入铃声以及拍打驾驶舱门的信号时，代表客舱出现了明显危及机上人员生命安全的情况，如果此时飞行机组还不能给出进一步的明确指令，客舱机组可以自主组织实施应急撤离。","options":["正确","错误"],"answer":"A"},
     {"title":"在起飞和着陆前，机组应当提前研判低空雨量情况，提前明确雨刷操作的具体分工和挡位，以避免在低空关键阶段PF受到雨刷操作的相关干扰","options":["正确","错误"],"answer":"A"},
     {"title":"正确使用气象雷达来避免进入积雨云和附近的颠簸区，理想的水平避让距离是上风方向 20 海里。","options":["正确","错误"],"answer":"A"},
     {"title":"如果在飞行中出现了中度颠簸，飞行机组必须在记录本上记录以便开始执行维护措施。","options":["正确","错误"],"answer":"B"},
     {"title":"在始发机场，机组必须按提供的规定路线进行飞机外部安全检查，过站机场可按需选择执行。以上说法是否正确？","options":["正确","错误"],"answer":"B"},
     {"title":"获得起飞许可后，PF设置推力手柄到起始稳定值后报出“起飞”（TAKEOFF）","options":["正确","错误"],"answer":"B"},
-    {"title":"得到开车许可指令时，无论是否需要推出，是否需要通知客舱机组？","options":["不需要","需要"],"answer":"B"},
+    {"title":"执行旅客在机上加油程序前，机组应通知AOC或机场现场指挥,并确认客舱已做好旅客在机场加油准备工作。","options":["正确","错误"],"answer":"A"},
     {"title":"当ATC修改了离场指令时，就应当执行离场变化检查单。离场变化检查单与滑行检查单无先后之分，并且如果在起飞前多次发生变化，离场检查单可能需要多次执行。","options":["正确","错误"],"answer":"A"},
     {"title":"在巡航中，由飞行机组自行决定任务分工，定期查看系统显示页，尤其是发动机、引气、电气、液压、燃油、空调、飞行控制、舱门。","options":["正确","错误"],"answer":"A"},
     {"title":"当飞机进跑道时，设定接通STEOBE（频闪灯）电门，PF可以发口令要求PM去设置外部灯。","options":["正确","错误"],"answer":"A"},
@@ -155,14 +154,14 @@ const rawQuestions = [
     {"title":"滑行中获得滑行许可后，交叉检查的标准喊话是？","options":["\"左侧干净\"/\"右侧干净\"","\"左侧检查\"/\"右侧检查\"","\"左侧安全\"/\"右侧安全\"","\"左侧确认\"/\"右侧确认\""],"answer":"A"},
     {"title":"在等待位置标志前等待时，标准坐姿下的位置参考是？","options":["机头离等待排灯越远越好","PM能看到等待标志即可","停留刹车设置后目测确认","等待位置标志位于前风挡视线内，同时遮光板上沿约与等待线相切"],"answer":"D"},
     {"title":"进入跑道等待预计超过多长时间，机组应联系ATC告知在跑道上等待？","options":["30秒","60秒","90秒","120秒"],"answer":"C"},
-    {"title":"起飞滑跑中出现预测性风切变警戒信息，应如何处置？","options":["继续起飞","实施中断起飞","观察情况再决定","速度低就中断，高就继续"],"answer":"B"},
+    {"title":"除进近、着陆、复飞阶段外的飞行阶段，坡度角大于多少时PM应喊出\"坡度\"？","options":["10度","20度","25度","30度"],"answer":"D"},
     {"title":"使用XLS引导的进近，APPR按键按下的条件不包括以下哪项？","options":["允许飞机进近","飞机在五边进近航迹的截获航迹上","PFD上有LOC或F-LOC偏差","距离FDP点1.5NM以内"],"answer":"D"},
     {"title":"虚假G/S*截获可能发生在什么情况下？","options":["在标准下滑道截获包线内待命APPR","在标准下滑道截获包线外待命APPR","飞机低于下滑道时","飞机高于下滑道时"],"answer":"B"},
     {"title":"从上方截获G/S时，V/S/FPA下降率不建议超过多少？","options":["-1000英尺/分钟","-1500英尺/分钟","-2000英尺/分钟","-2500英尺/分钟"],"answer":"C"},
     {"title":"从上方截获下滑道，选择V/S模式时，初始推荐垂直速度为？","options":["2500ft/min","2000ft/min","1500ft/min","1000 ft/min"],"answer":"C"},
     {"title":"接收飞机时，飞机维护记录本和MEL/CDL的检查由谁完成？","options":["机长和副驾驶共同完成","仅由机长完成","仅由副驾驶完成","由机务代表完成后机组签字"],"answer":"A"},
     {"title":"MFD ATC通讯准备中检查信息记录，若MFD上没有显示NO STORED MSG，机组应如何处置？","options":["断开CPDLC连接","重新启动MFD","通知机务处理","点击ERASE ALL清除前次飞行的CPDLC记录"],"answer":"D"},
-    {"title":"停机程序中停留刹车相关动作的正确顺序是？","options":["先刹停留刹车，再检查蓄压瓶压力","蓄压瓶压力检查→设置停留刹车→检查刹车压力→松踏板关车","设置停留刹车→蓄压瓶压力检查→检查刹车压力→松踏板关车","先松开刹车脚踏板再设置停留刹车"],"answer":"B"},
+    {"title":"停机程序中停留刹车相关动作的正确顺序是？","options":["先刹停留刹车，再检查蓄压瓶压力","蓄压瓶压力检查→设置停留刹车→停机刹车显示→松踏板关车","设置停留刹车→蓄压瓶压力检查→检查刹车压力→松踏板关车","先松开刹车脚踏板再设置停留刹车"],"answer":"B"},
     {"title":"使用XLS引导的进近，APPR按键按下的条件不包括以下哪项？","options":["允许飞机进近","飞机在五边进近航迹的截获航迹上","PFD上有LOC或F-LOC偏差","距离FDP点1.5NM以内"],"answer":"D"},
     {"title":"TCAS防范措施建议中，改变高度爬升或下降时，升降率不大于多少？","options":["1000英尺/分钟","1500英尺/分钟","2000英尺/分钟","2500英尺/分钟"],"answer":"B"},
     {"title":"TCAS防范措施建议中，爬升或下降至管制许可高度层的最后300米，升降率应保持在多少？","options":["300-500英尺/分钟","500-1000英尺/分钟","1000-1500英尺/分钟","1500-2000英尺/分钟"],"answer":"B"},
@@ -187,7 +186,7 @@ const rawQuestions = [
     {"title":"两部AP都接通时，哪部是激活的？","options":["先接通的那部","后接通的那部","AP1激活，AP2待命（无论接通顺序）","两部同时激活"],"answer":"C"},
     {"title":"当CPDLC失效并转换为话音通信时，全部尚未完成的CPDLC电文应（　）。","options":["视为已经发出并生效","视为未发出，须用语音通讯重新报告尚未完成的电文对话","由ATC系统自动重发","机组可自行选择是否重发"],"answer":"B"},
     {"title":"巡航中机组完成轮息返回驾驶舱准备换座，按照换座简令的分工要求，即将上座的机组成员应当做的是（　）。","options":["结合下座机组的简述，明确后续飞行的威胁及注意事项","先接管操纵，再听取下座机组简述","只需确认油量和高度层，其余待接管后自行查看","由在座的PM自己念一边换座简令卡即可"],"answer":"A"},
-    {"title":"当AP/FD垂直模式调整俯仰以保持速度目标时（如爬升、下降），A/THR处于什么模式？","options":["THRUST模式","SPEED/MACH模式","RETARD模式","CLAMP模式"],"answer":"A"},
+    {"title":"当AP/FD垂直模式调整俯仰以保持速度目标时（如爬升、下降），A/THR处于什么模式？","options":["THRUST模式","SPEED/MACH模式","RETARD模式","CLAMB模式"],"answer":"A"},
     {"title":"复飞中PM喊出飞行参数偏离时，PF必须做出的适当反应是（　）。","options":["确认收到PM喊话并保持监控即可","确认收到PM喊话，并立即采取修正动作把参数控制在规定的稳定状态下","立即断开自动驾驶仪转入人工修正","要求PM重新确认参数后再决定是否修正"],"answer":"B"},
     {"title":"A/THR在什么情况下激活？","options":["飞机离地后","到达减推力高度，推力杆设置到CL卡位时","达到V2后","爬升阶段自动激活"],"answer":"B"},
     {"title":"双发工作时，A/THR激活的推力杆活动范围是？","options":["都在IDLE以上，CL卡位及以下","都在FLX-MCT卡位","都在TOGA卡位","任意位置"],"answer":"A"},
@@ -196,20 +195,19 @@ const rawQuestions = [
     {"title":"起飞前，起飞构型警告的触发条件不包括以下哪项？","options":["襟翼未在起飞位","扰流板未预位","自动刹车未设RTO","停留刹车未松"],"answer":"D"},
     {"title":"双发工作正常，起飞时SRS模式保持的目标速度是？","options":["V1","VR","V2或V2+10kt","VLS和绿点之间"],"answer":"C"},
     {"title":"起飞时单发，SRS模式保持的目标速度范围是？","options":["V1","V2和V2+10kt之间","V2和V2+15kt之间","VLS和绿点之间"],"answer":"C"},
-    {"title":"A350驾驶舱准备期间，MFD中备降场的输入由谁在什么时机输入？","options":["由CM1在驾驶舱初始准备阶段输入","由CM2在驾驶舱初始准备阶段输入","由PF在驾驶舱准备 FMS的准备期间输入","时机不要紧，大多数的机组程序一致即可"],"answer":"C"},
+    {"title":"使用FLS实施具RNAV(GNSS)进近，在目视参考不足以目视飞行的场景下，F-LOC偏差超过多少机组需要实施中断进近或者复飞？","options":["F-LOC偏差超过1.5个点","F-LOC偏差超过1个点","F-LOC偏差超过1/2个点"],"answer":"C"},
     {"title":"在FCTM中，关于“do not ride the brakes”的解释，最准确的是：","options":["不要一直踩着刹车。","不要反复踩下又松开刹车踏板，按需踩下脚踏板刹车并且调整压力，期间不要松开刹车。","不要使用刹车，应优先使用反推减速。","按需反复踩下又松开刹车踏板。"],"answer":"B"},
     {"title":"舱门解除预位机组的的标准广播为？","options":["“滑梯已解除预位”","“各舱门已解除预位”","“客舱门已解除预位”","“各舱门预位已解除”"],"answer":"B"}
 ];
 
 // ===================== 核心逻辑 =====================
-let currentMode = 'order'; // 'order', 'random', 'error'
-let allQuestions = [];      // 当前模式下的题目列表（已排序/过滤）
+let currentMode = 'order';
+let allQuestions = [];
 let cur = 0;
 let completedQuestions = new Set();
 let errorQuestions = [];
 let errorQuestionIds = [];
 
-// 打乱数组
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -218,19 +216,14 @@ function shuffleArray(arr) {
     return arr;
 }
 
-// 获取当前模式的存储key前缀
-function getStoragePrefix() {
-    return 'sop_' + currentMode + '_';
-}
+function getStoragePrefix() { return 'sop_' + currentMode + '_'; }
 
-// 加载数据
 function loadData() {
     const prefix = getStoragePrefix();
     const savedCur = localStorage.getItem(prefix + 'cur');
     if (savedCur !== null) cur = parseInt(savedCur);
     const savedCompleted = localStorage.getItem(prefix + 'completed');
     if (savedCompleted) completedQuestions = new Set(JSON.parse(savedCompleted));
-    // 错题本全局共享（不按模式区分）
     const savedErrors = localStorage.getItem('sop_error_questions');
     if (savedErrors) {
         errorQuestions = JSON.parse(savedErrors);
@@ -244,7 +237,6 @@ function saveProgress() {
     const prefix = getStoragePrefix();
     localStorage.setItem(prefix + 'cur', cur);
     localStorage.setItem(prefix + 'completed', JSON.stringify([...completedQuestions]));
-    // 错题本全局保存
     localStorage.setItem('sop_error_questions', JSON.stringify(errorQuestions));
 }
 
@@ -253,7 +245,6 @@ function updateProgressInfo() {
     document.getElementById('errorCount').innerText = errorQuestions.length;
 }
 
-// 添加/移除错题
 function addToErrorBook(question) {
     if (!errorQuestionIds.includes(question.id)) {
         errorQuestions.push(question);
@@ -269,23 +260,18 @@ function removeFromErrorBook(questionId) {
     updateProgressInfo();
 }
 
-// 模式切换
 function setMode(mode) {
     if (mode === currentMode) return;
     currentMode = mode;
-    // 更新按钮激活样式
     document.querySelectorAll('.func-btn[data-mode]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
     });
-    // 重新构建题目列表
     buildQuestionList();
     cur = 0;
-    // 加载该模式下的进度
     loadData();
     render();
 }
 
-// 构建当前模式的题目列表
 function buildQuestionList() {
     let list = [];
     if (currentMode === 'order') {
@@ -293,28 +279,23 @@ function buildQuestionList() {
     } else if (currentMode === 'random') {
         list = rawQuestions.map((q, idx) => ({...q, id: idx + 1}));
         shuffleArray(list);
-        // 重新分配id（保持唯一）
         list.forEach((q, i) => q.id = i + 1);
     } else if (currentMode === 'error') {
-        // 错题练习：只包含错题
         list = errorQuestions.map((q, idx) => ({...q, id: idx + 1}));
     }
     allQuestions = list;
-    // 如果当前模式是错题且没有错题，给出提示
     if (currentMode === 'error' && allQuestions.length === 0) {
         alert('当前没有错题，请先在其他模式下练习积累错题。');
-        // 自动切回顺序模式
         currentMode = 'order';
         document.querySelectorAll('.func-btn[data-mode]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.mode === 'order');
         });
-        buildQuestionList(); // 重新构建
+        buildQuestionList();
     }
     document.getElementById('total').innerText = allQuestions.length;
     document.getElementById('totalCount').innerText = allQuestions.length;
 }
 
-// 渲染题目
 function render() {
     if (allQuestions.length === 0) {
         document.getElementById('qTitle').innerText = '暂无题目';
@@ -324,7 +305,6 @@ function render() {
         updateNavButtons();
         return;
     }
-    // 确保cur在有效范围
     if (cur >= allQuestions.length) cur = allQuestions.length - 1;
     if (cur < 0) cur = 0;
     const q = allQuestions[cur];
@@ -339,7 +319,6 @@ function render() {
     feedback.className = 'feedback';
     feedback.innerHTML = '';
 
-    // 标记当前题目是否已答对（已完成）
     const isCompleted = completedQuestions.has(q.id);
 
     q.options.forEach((t, i) => {
@@ -353,27 +332,21 @@ function render() {
             mark.innerText = '错题';
             optDiv.appendChild(mark);
         }
-        // 如果已经完成，显示正确/错误样式，并禁用点击
         if (isCompleted) {
             const isCorrect = (letter === q.answer);
             optDiv.classList.add(isCorrect ? 'correct' : 'wrong');
             optDiv.classList.add('disabled');
         } else {
             optDiv.onclick = () => {
-                // 先清除所有样式
                 document.querySelectorAll('.opt').forEach(x => x.classList.remove('correct', 'wrong', 'disabled'));
                 const isCorrect = (letter === q.answer);
                 optDiv.classList.add(isCorrect ? 'correct' : 'wrong');
-                // 禁用所有选项
                 document.querySelectorAll('.opt').forEach(x => x.classList.add('disabled'));
-                // 显示反馈
                 feedback.className = 'feedback show';
                 if (isCorrect) {
                     feedback.classList.add('correct');
                     feedback.innerHTML = '✅ 回答正确！';
-                    // 从错题本移除
                     removeFromErrorBook(q.id);
-                    // 标记已完成
                     completedQuestions.add(q.id);
                     saveProgress();
                     updateProgressInfo();
@@ -383,55 +356,26 @@ function render() {
                     const correctIndex = ['A','B','C','D'].indexOf(correctLetter);
                     const correctText = q.options[correctIndex] || '';
                     feedback.innerHTML = `❌ 回答错误。正确答案是：<strong>${correctLetter}. ${correctText}</strong>`;
-                    // 加入错题本
                     addToErrorBook(q);
                 }
-                // 重新渲染题目以更新错题标记
-                // 但为了保留反馈，我们只更新错题标记，不重新渲染整个页面
-                // 但为了简单，我们可以重新渲染，但会丢失反馈，所以我们只更新标记
-                // 简单做法：刷新当前题目显示（保持反馈）
-                // 但为了同步错题标记，我们调用render会重置所有，所以我们将反馈内容保存到变量中
-                // 这里我们直接重新渲染，但保留反馈信息在变量中
-                // 为简化，我们重新渲染，但利用setTimeout保留反馈
-                // 更好的做法：只更新错题标记，不重新渲染全部，但为了保持一致性，我们重新渲染并恢复反馈
-                // 我们采用重新渲染，并在之后重新显示反馈（但会丢失反馈内容），所以我们保存反馈内容
-                const feedbackHTML = feedback.innerHTML;
-                const feedbackClass = feedback.className;
+                // 重新渲染以同步状态（保留反馈）
+                const fbHTML = feedback.innerHTML;
+                const fbClass = feedback.className;
                 render();
-                // 恢复反馈
                 const newFeedback = document.getElementById('feedback');
-                newFeedback.className = feedbackClass;
-                newFeedback.innerHTML = feedbackHTML;
-                // 但重新渲染后选项会被重置，所以我们需要再次禁用选项并保持颜色？——重新渲染会重置所有，所以我们需要重新应用样式
-                // 我们可以在render中检查是否已答过来保持样式，但那样会复杂。
-                // 更简单：我们不在render中重置样式，而是在render中根据completed状态设置样式
-                // 但上面已经处理了completed情况，我们只需在render后，如果当前题已完成，则直接设置样式
-                // 但因为我们已经重新渲染，completed状态已更新，所以再次调用render会正确显示
-                // 所以只需要在feedback显示后，再重新调用render即可，但会丢失反馈
-                // 我们采用在点击后直接修改DOM，而不重新渲染
-                // 为了代码可维护性，我们采用重新渲染，并利用setTimeout恢复反馈
-                // 这里我们简单处理：重新渲染后，如果当前题已完成，则显示“已回答”提示
-                // 修改render：如果当前题已完成，在反馈区显示“已答对”或“已答错”信息
+                newFeedback.className = fbClass;
+                newFeedback.innerHTML = fbHTML;
             };
         }
         optsDiv.appendChild(optDiv);
     });
 
-    // 如果已完成，在反馈区显示完成状态
     if (isCompleted) {
-        const isCorrect = completedQuestions.has(q.id);
-        feedback.className = 'feedback show';
-        if (isCorrect) {
-            feedback.classList.add('correct');
-            feedback.innerHTML = '✅ 本题已答对！';
-        } else {
-            // 一般不会出现已完成但错误的情况，因为答错不会标记完成
-        }
+        feedback.className = 'feedback show correct';
+        feedback.innerHTML = '✅ 本题已答对！';
     }
 
     updateNavButtons();
-    // 更新总题数显示
-    document.getElementById('totalCount').innerText = allQuestions.length;
 }
 
 function updateNavButtons() {
@@ -446,7 +390,6 @@ function goNext() {
     if (cur < allQuestions.length - 1) { cur++; render(); saveProgress(); }
 }
 
-// 搜索功能
 function doSearch() {
     const kw = document.getElementById('searchInput').value.toLowerCase();
     if (!kw) return;
@@ -460,11 +403,8 @@ function doSearch() {
     }
     alert('未找到匹配题目');
 }
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-}
+function clearSearch() { document.getElementById('searchInput').value = ''; }
 
-// 错题本
 function openErrorBook() {
     const modal = document.getElementById('errorModal');
     const errorList = document.getElementById('errorList');
@@ -505,38 +445,24 @@ function showErrorAnswer(index) {
 function removeErrorQuestion(questionId) {
     if (confirm('确定要移除这道错题吗？')) {
         removeFromErrorBook(questionId);
-        // 如果当前是错题模式，重新构建列表
         if (currentMode === 'error') {
             buildQuestionList();
-            if (allQuestions.length === 0) {
-                // 没有错题了，切回顺序模式
-                setMode('order');
-            } else {
-                render();
-            }
+            if (allQuestions.length === 0) setMode('order');
+            else render();
         } else {
-            openErrorBook(); // 刷新错题本
-            render(); // 刷新当前题目（更新错题标记）
+            openErrorBook();
+            render();
         }
     }
 }
 function gotoErrorQuestion(questionId) {
     closeErrorBook();
-    // 先切换到顺序或随机模式（因为错题模式可能没有该题）
-    if (currentMode !== 'order' && currentMode !== 'random') {
-        setMode('order');
-    }
+    if (currentMode !== 'order' && currentMode !== 'random') setMode('order');
     const idx = allQuestions.findIndex(q => q.id === questionId);
-    if (idx !== -1) {
-        cur = idx;
-        render();
-        saveProgress();
-    } else {
-        alert('该错题不在当前模式列表中，请切换到顺序或随机模式查找。');
-    }
+    if (idx !== -1) { cur = idx; render(); saveProgress(); }
+    else alert('该错题不在当前模式列表中，请切换到顺序或随机模式查找。');
 }
 
-// 重置进度
 function resetProgress() {
     if (confirm('确定要重置所有进度和错题本吗？此操作不可恢复！')) {
         const prefix = getStoragePrefix();
@@ -554,13 +480,10 @@ function resetProgress() {
     }
 }
 
-// 初始化
 document.getElementById('prev').onclick = goPrev;
 document.getElementById('next').onclick = goNext;
 
-// 页面加载时初始化
 window.onload = function() {
-    // 初始模式为顺序
     currentMode = 'order';
     document.querySelectorAll('.func-btn[data-mode]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === 'order');
